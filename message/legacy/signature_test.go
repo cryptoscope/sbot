@@ -59,8 +59,10 @@ func TestCompatHMACVerify(t *testing.T) {
 
 	// TODO: be more creative with test data
 	var lm LegacyMessage
+	lm.Hash = "sha256"
 	lm.Author = kp.Id.Ref()
 	lm.Content = map[string]interface{}{
+		"type":  "test",
 		"hello": "world",
 	}
 
@@ -94,8 +96,10 @@ func TestCompatHMACSign(t *testing.T) {
 
 	// TODO: be more creative with test data
 	var lm LegacyMessage
+	lm.Hash = "sha256"
 	lm.Author = kp.Id.Ref()
 	lm.Content = map[string]interface{}{
+		"type":  "test",
 		"hello": "world",
 	}
 
@@ -143,8 +147,10 @@ func TestCompatVerify(t *testing.T) {
 
 	// TODO: be more creative with test data
 	var lm LegacyMessage
+	lm.Hash = "sha256"
 	lm.Author = kp.Id.Ref()
 	lm.Content = map[string]interface{}{
+		"type":  "test",
 		"hello": "world",
 	}
 
@@ -173,8 +179,10 @@ func TestCompatSignature(t *testing.T) {
 
 	// TODO: be more creative with test data
 	var lm LegacyMessage
+	lm.Hash = "sha256"
 	lm.Author = kp.Id.Ref()
 	lm.Content = map[string]interface{}{
+		"type":  "test",
 		"hello": "world",
 	}
 
