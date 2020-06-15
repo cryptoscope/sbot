@@ -12,6 +12,18 @@ import (
 	refs "go.mindeco.de/ssb-refs"
 )
 
+type FeedRef struct {
+	refs.FeedRef
+}
+
+type BlobRef struct {
+	refs.BlobRef
+}
+
+type MessageRef struct {
+	refs.MessageRef
+}
+
 // GetFeedRefFromAddr uses netwrap to get the secretstream address and then uses ParseFeedRef
 func GetFeedRefFromAddr(addr net.Addr) (*FeedRef, error) {
 	addr = netwrap.GetAddr(addr, secretstream.NetworkString)

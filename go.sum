@@ -152,6 +152,7 @@ github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brv
 github.com/hashicorp/go-cleanhttp v0.5.1/go.mod h1:JpRdi6/HCYpAwUzNwuwqhbovhLtngrth3wmdIIUrZ80=
 github.com/hashicorp/go-immutable-radix v1.0.0/go.mod h1:0y9vanUI8NX6FsYoO3zeMjhV/C5i9g4Q3DwcSNZ4P60=
 github.com/hashicorp/go-msgpack v0.5.3/go.mod h1:ahLV/dePpqEmjfWmKiqvPkv/twdG7iPBM1vqhUKIvfM=
+github.com/hashicorp/go-multierror v1.0.0 h1:iVjPR7a6H0tWELX5NxNe7bYopibicUzc7uPribsnS6o=
 github.com/hashicorp/go-multierror v1.0.0/go.mod h1:dHtQlpGsu+cZNNAkkCN/P3hoUDHhCYQXV3UM06sGGrk=
 github.com/hashicorp/go-multierror v1.1.0 h1:B9UzwGQJehnUY1yNrnwREHc3fGbC2xefo8g4TbElacI=
 github.com/hashicorp/go-multierror v1.1.0/go.mod h1:spPvp8C1qA32ftKqdAHm4hHTbPw+vmowP0z+KUhOZdA=
@@ -394,11 +395,15 @@ go.cryptoscope.co/ssb v0.0.0-20190912121701-f368dd6b09da/go.mod h1:gpgPuN7P0HxY5
 go.cryptoscope.co/ssb v0.0.0-20200302095059-b4d663e8b635/go.mod h1:yS5rZfApf+Twb70/vRTBfK1wFmk2VwXZs7s5KYnk4sk=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.etcd.io/etcd v0.0.0-20191023171146-3cf2f69b5738/go.mod h1:dnLIgRNXwCJa5e+c6mIZCrds/GIG4ncV9HhK5PX7jPg=
+go.mindeco.de v0.0.0-20191122233605-f02621a5bca7 h1:si0O0lnNT3SHzEBwuFfqWBaZlME/FnXWlxyZGdri3D8=
 go.mindeco.de/ssb-gabbygrove v0.1.5/go.mod h1:sBNu1GoyNkLuWcQ2H+pHuBDrXyelbitt5MKHhoWEkAI=
 go.mindeco.de/ssb-gabbygrove v0.1.6 h1:JNktjdiGVaHVH3Gtoit+9MHgH5RSqiubL7aFg/53aR0=
 go.mindeco.de/ssb-gabbygrove v0.1.6/go.mod h1:sBNu1GoyNkLuWcQ2H+pHuBDrXyelbitt5MKHhoWEkAI=
 go.mindeco.de/ssb-multiserver v0.0.0-20200302144839-6902de33e194 h1:ZsYJvnZlyfr0bXbxvVqKUsGkiATN6cCH24IPNHjcgmI=
 go.mindeco.de/ssb-multiserver v0.0.0-20200302144839-6902de33e194/go.mod h1:zFIXdyS5SRuVWv+AUDL+bo+NP1+ufiZfpw5jkM+wa4s=
+go.mindeco.de/ssb-multiserver v0.0.0-20200615120544-ce4da9d56996 h1:+v2nqtamGeqEgDjSm8p/o3KpuNasynIZOFwRp3XBltc=
+go.mindeco.de/ssb-multiserver v0.0.0-20200615120544-ce4da9d56996/go.mod h1:00eKD22DevFY0GQ1ifsydiOvBHJi9Z/bomxlRGTEvL0=
+go.mindeco.de/ssb-refs v0.0.0-20200615115708-7b8437f55cef/go.mod h1:u3EqvzDljgzrGT93hyWA1VbE06NKdavnpJ4sMXZxQxE=
 go.mindeco.de/ssb-refs v0.0.0-20200615121534-e677c80c4097 h1:CIlsAbrn4c1/xBX4E/IgOFTJMkc/MJwYdkDZ9v61Y7Q=
 go.mindeco.de/ssb-refs v0.0.0-20200615121534-e677c80c4097/go.mod h1:NYcuq8EOqR8/RgmMa7qA4VgrXXUp+5Y0rk8CTi++Xys=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
@@ -482,6 +487,8 @@ golang.org/x/sys v0.0.0-20191007154456-ef33b2fb2c41/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20191220142924-d4481acd189f/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9 h1:YTzHMGlqJu67/uEo1lBv0n3wBXhXNeUbB1XfN2vmTm0=
 golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20200610111108-226ff32320da h1:bGb80FudwxpeucJUjPYJXuJ8Hk91vNtfvrymzwiei38=
+golang.org/x/sys v0.0.0-20200610111108-226ff32320da/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.2 h1:tW2bmiBqwgJj/UpqtC8EpXEZVYOwU0yG4iWbprSVAcs=
 golang.org/x/text v0.3.2/go.mod h1:bEr9sfX3Q8Zfm5fL9x+3itogRgK3+ptLWKqgva+5dAk=
