@@ -14,8 +14,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/luigi"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/internal/testutils"
 )
 
@@ -67,7 +67,7 @@ func TestPublishUnicode(t *testing.T) {
 		if luigi.IsEOS(err) {
 			break
 		}
-		sm := v.(ssb.Message)
+		sm := v.(refs.Message)
 		var p post
 		c := sm.ContentBytes()
 		err = json.Unmarshal(c, &p)

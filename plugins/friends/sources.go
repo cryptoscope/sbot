@@ -8,12 +8,12 @@ import (
 	"github.com/go-kit/kit/log"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/graph"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type blocksSrc struct {
-	self ssb.FeedRef
+	self refs.FeedRef
 
 	log log.Logger
 
@@ -22,14 +22,14 @@ type blocksSrc struct {
 
 func (h blocksSrc) HandleSource(ctx context.Context, req *muxrpc.Request, snk luigi.Sink) error {
 	type argT struct {
-		Who ssb.FeedRef
+		Who refs.FeedRef
 	}
 	var args []argT
 	if err := json.Unmarshal(req.RawArgs, &args); err != nil {
 		return fmt.Errorf("invalid argument on isFollowing call: %w", err)
 	}
 
-	var who ssb.FeedRef
+	var who refs.FeedRef
 	if len(args) != 1 {
 		who = h.self
 	} else {
@@ -56,7 +56,7 @@ func (h blocksSrc) HandleSource(ctx context.Context, req *muxrpc.Request, snk lu
 }
 
 type hopsSrc struct {
-	self ssb.FeedRef
+	self refs.FeedRef
 
 	log log.Logger
 
@@ -64,8 +64,8 @@ type hopsSrc struct {
 }
 
 type HopsArgs struct {
-	Start *ssb.FeedRef `json:"start,omitempty"`
-	Max   uint         `json:"max"`
+	Start *refs.FeedRef `json:"start,omitempty"`
+	Max   uint          `json:"max"`
 }
 
 func (h hopsSrc) HandleSource(ctx context.Context, req *muxrpc.Request, snk luigi.Sink) error {
@@ -75,7 +75,7 @@ func (h hopsSrc) HandleSource(ctx context.Context, req *muxrpc.Request, snk luig
 	}
 
 	var (
-		start *ssb.FeedRef
+		start *refs.FeedRef
 		dist  uint
 	)
 	if len(args) == 1 {

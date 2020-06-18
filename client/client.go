@@ -18,6 +18,7 @@ import (
 	"go.cryptoscope.co/muxrpc/codec"
 	"go.cryptoscope.co/netwrap"
 	"go.cryptoscope.co/secretstream"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/crypto/ed25519"
 
 	"go.cryptoscope.co/ssb"
@@ -172,7 +173,7 @@ func (c Client) Close() error {
 	return nil
 }
 
-func (c Client) Whoami() (*ssb.FeedRef, error) {
+func (c Client) Whoami() (*refs.FeedRef, error) {
 	v, err := c.Async(c.rootCtx, message.WhoamiReply{}, muxrpc.Method{"whoami"})
 	if err != nil {
 		return nil, errors.Wrap(err, "ssbClient: whoami failed")
@@ -189,7 +190,7 @@ func (c Client) ReplicateUpTo() (luigi.Source, error) {
 	return src, errors.Wrap(err, "ssbClient: failed to create stream")
 }
 
-func (c Client) BlobsWant(ref ssb.BlobRef) error {
+func (c Client) BlobsWant(ref refs.BlobRef) error {
 	var v interface{}
 	v, err := c.Async(c.rootCtx, v, muxrpc.Method{"blobs", "want"}, ref.Ref())
 	if err != nil {
@@ -199,7 +200,7 @@ func (c Client) BlobsWant(ref ssb.BlobRef) error {
 	return nil
 }
 
-func (c Client) BlobsHas(ref *ssb.BlobRef) (bool, error) {
+func (c Client) BlobsHas(ref *refs.BlobRef) (bool, error) {
 	v, err := c.Async(c.rootCtx, true, muxrpc.Method{"blobs", "want"}, ref.Ref())
 	if err != nil {
 		return false, errors.Wrap(err, "ssbClient: whoami failed")
@@ -209,7 +210,7 @@ func (c Client) BlobsHas(ref *ssb.BlobRef) (bool, error) {
 
 }
 
-func (c Client) BlobsGet(ref *ssb.BlobRef) (io.Reader, error) {
+func (c Client) BlobsGet(ref *refs.BlobRef) (io.Reader, error) {
 	args := blobstore.GetWithSize{Key: ref, Max: blobstore.DefaultMaxSize}
 	v, err := c.Source(c.rootCtx, codec.Body{}, muxrpc.Method{"blobs", "get"}, args)
 	if err != nil {
@@ -222,7 +223,7 @@ func (c Client) BlobsGet(ref *ssb.BlobRef) (io.Reader, error) {
 
 type NamesGetResult map[string]map[string]string
 
-func (ngr NamesGetResult) GetCommonName(feed *ssb.FeedRef) (string, bool) {
+func (ngr NamesGetResult) GetCommonName(feed *refs.FeedRef) (string, bool) {
 	namesFor, ok := ngr[feed.Ref()]
 	if !ok {
 		return "", false
@@ -253,7 +254,7 @@ func (c Client) NamesGet() (NamesGetResult, error) {
 	return res, nil
 }
 
-func (c Client) NamesSignifier(ref ssb.FeedRef) (string, error) {
+func (c Client) NamesSignifier(ref refs.FeedRef) (string, error) {
 	var v interface{}
 	v, err := c.Async(c.rootCtx, "str", muxrpc.Method{"names", "getSignifier"}, ref.Ref())
 	if err != nil {
@@ -263,7 +264,7 @@ func (c Client) NamesSignifier(ref ssb.FeedRef) (string, error) {
 	return v.(string), nil
 }
 
-func (c Client) NamesImageFor(ref ssb.FeedRef) (*ssb.BlobRef, error) {
+func (c Client) NamesImageFor(ref refs.FeedRef) (*refs.BlobRef, error) {
 	var v interface{}
 	v, err := c.Async(c.rootCtx, "str", muxrpc.Method{"names", "getImageFor"}, ref.Ref())
 	if err != nil {
@@ -274,10 +275,10 @@ func (c Client) NamesImageFor(ref ssb.FeedRef) (*ssb.BlobRef, error) {
 	if blobRef == "" {
 		return nil, errors.Errorf("no image for feed")
 	}
-	return ssb.ParseBlobRef(blobRef)
+	return refs.ParseBlobRef(blobRef)
 }
 
-func (c Client) Publish(v interface{}) (*ssb.MessageRef, error) {
+func (c Client) Publish(v interface{}) (*refs.MessageRef, error) {
 	v, err := c.Async(c.rootCtx, "str", muxrpc.Method{"publish"}, v)
 	if err != nil {
 		return nil, errors.Wrap(err, "ssbClient: publish call failed")
@@ -286,11 +287,11 @@ func (c Client) Publish(v interface{}) (*ssb.MessageRef, error) {
 	if !ok {
 		return nil, errors.Errorf("ssbClient: wrong reply type: %T", v)
 	}
-	msgRef, err := ssb.ParseMessageRef(resp)
+	msgRef, err := refs.ParseMessageRef(resp)
 	return msgRef, errors.Wrap(err, "failed to parse new message reference")
 }
 
-func (c Client) PrivatePublish(v interface{}, recps ...*ssb.FeedRef) (*ssb.MessageRef, error) {
+func (c Client) PrivatePublish(v interface{}, recps ...*refs.FeedRef) (*refs.MessageRef, error) {
 	var recpRefs = make([]string, len(recps))
 	for i, ref := range recps {
 		if ref == nil {
@@ -306,12 +307,12 @@ func (c Client) PrivatePublish(v interface{}, recps ...*ssb.FeedRef) (*ssb.Messa
 	if !ok {
 		return nil, errors.Errorf("ssbClient: wrong reply type: %T", v)
 	}
-	msgRef, err := ssb.ParseMessageRef(resp)
+	msgRef, err := refs.ParseMessageRef(resp)
 	return msgRef, errors.Wrapf(err, "failed to parse new message reference: %q", resp)
 }
 
 func (c Client) PrivateRead() (luigi.Source, error) {
-	src, err := c.Source(c.rootCtx, ssb.KeyValueRaw{}, muxrpc.Method{"private", "read"})
+	src, err := c.Source(c.rootCtx, refs.KeyValueRaw{}, muxrpc.Method{"private", "read"})
 	if err != nil {
 		return nil, errors.Wrap(err, "ssbClient: private.read query failed")
 	}

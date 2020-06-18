@@ -10,6 +10,7 @@ import (
 	"go.cryptoscope.co/ssb/internal/transform"
 	"go.cryptoscope.co/ssb/message"
 	"go.cryptoscope.co/ssb/private"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 
@@ -74,14 +75,14 @@ func (h handler) HandleCall(ctx context.Context, req *muxrpc.Request, edp muxrpc
 			return
 		}
 
-		rcpsRefs := make([]*ssb.FeedRef, len(rcps))
+		rcpsRefs := make([]*refs.FeedRef, len(rcps))
 		for i, rv := range rcps {
 			rstr, ok := rv.(string)
 			if !ok {
 				req.CloseWithError(errors.Errorf("private/publish: wrong argument type. expected strings but got %T", rv))
 				return
 			}
-			rcpsRefs[i], err = ssb.ParseFeedRef(rstr)
+			rcpsRefs[i], err = refs.ParseFeedRef(rstr)
 			if err != nil {
 				req.CloseWithError(errors.Wrapf(err, "private/publish: failed to parse recp %d", i))
 				return
@@ -163,7 +164,7 @@ func (h handler) privateRead(ctx context.Context, req *muxrpc.Request) {
 	req.Close()
 }
 
-func (h handler) privatePublish(msg []byte, recps []*ssb.FeedRef) (*ssb.MessageRef, error) {
+func (h handler) privatePublish(msg []byte, recps []*refs.FeedRef) (*refs.MessageRef, error) {
 	boxedMsg, err := private.Box(msg, recps...)
 	if err != nil {
 		return nil, errors.Wrap(err, "private/publish: failed to box message")

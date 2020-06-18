@@ -21,8 +21,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/muxrpc/debug"
 	"go.cryptoscope.co/netwrap"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/internal/testutils"
 	"go.cryptoscope.co/ssb/sbot"
 )
@@ -147,12 +147,12 @@ func (ts *testSession) startGoBot(sbotOpts ...sbot.Option) {
 
 var jsBotCnt = 0
 
-func (ts *testSession) startJSBot(jsbefore, jsafter string) *ssb.FeedRef {
+func (ts *testSession) startJSBot(jsbefore, jsafter string) *refs.FeedRef {
 	return ts.startJSBotWithName("", jsbefore, jsafter)
 }
 
 // returns the jsbots pubkey
-func (ts *testSession) startJSBotWithName(name, jsbefore, jsafter string) *ssb.FeedRef {
+func (ts *testSession) startJSBotWithName(name, jsbefore, jsafter string) *refs.FeedRef {
 	r := require.New(ts.t)
 	cmd := exec.Command("node", "./sbot.js")
 	cmd.Stderr = os.Stderr
@@ -199,7 +199,7 @@ func (ts *testSession) startJSBotWithName(name, jsbefore, jsafter string) *ssb.F
 	pubScanner := bufio.NewScanner(outrc) // TODO muxrpc comms?
 	r.True(pubScanner.Scan(), "multiple lines of output from js - expected #1 to be alices pubkey/id")
 
-	alice, err := ssb.ParseFeedRef(pubScanner.Text())
+	alice, err := refs.ParseFeedRef(pubScanner.Text())
 	r.NoError(err, "failed to get alice key from JS process")
 	ts.t.Logf("JS alice: %d  %s", jsBotCnt, alice.Ref())
 	return alice

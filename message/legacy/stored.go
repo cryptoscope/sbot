@@ -9,16 +9,16 @@ import (
 	"time"
 
 	"github.com/cryptix/go/encodedTime"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/margaret"
-	"go.cryptoscope.co/ssb"
 )
 
 // OldStoredMessage is only available to ease migration from old, pre-multimsg formats
 type OldStoredMessage struct {
-	Author    *ssb.FeedRef    // @... pubkey
-	Previous  *ssb.MessageRef // %... message hashsha
-	Key       *ssb.MessageRef // %... message hashsha
+	Author    *refs.FeedRef    // @... pubkey
+	Previous  *refs.MessageRef // %... message hashsha
+	Key       *refs.MessageRef // %... message hashsha
 	Sequence  margaret.BaseSeq
 	Timestamp time.Time
 	Raw       []byte // the original message for gossiping see ssb.EncodePreserveOrdering for why
@@ -35,9 +35,9 @@ func (sm OldStoredMessage) String() string {
 // really dislike the underlines but they are there to implement the message interface more easily
 
 type StoredMessage struct {
-	Author_    *ssb.FeedRef    // @... pubkey
-	Previous_  *ssb.MessageRef // %... message hashsha
-	Key_       *ssb.MessageRef // %... message hashsha
+	Author_    *refs.FeedRef    // @... pubkey
+	Previous_  *refs.MessageRef // %... message hashsha
+	Key_       *refs.MessageRef // %... message hashsha
 	Sequence_  margaret.BaseSeq
 	Timestamp_ time.Time
 	Raw_       []byte // the original message for gossiping see ssb.EncodePreserveOrdering for why
@@ -59,21 +59,21 @@ func (sm StoredMessage) String() string {
 	return s
 }
 
-var _ ssb.Message = (*StoredMessage)(nil)
+var _ refs.Message = (*StoredMessage)(nil)
 
 func (sm StoredMessage) Seq() int64 {
 	return sm.Sequence_.Seq()
 }
 
-func (sm StoredMessage) Key() *ssb.MessageRef {
+func (sm StoredMessage) Key() *refs.MessageRef {
 	return sm.Key_
 }
 
-func (sm StoredMessage) Author() *ssb.FeedRef {
+func (sm StoredMessage) Author() *refs.FeedRef {
 	return sm.Author_
 }
 
-func (sm StoredMessage) Previous() *ssb.MessageRef {
+func (sm StoredMessage) Previous() *refs.MessageRef {
 	return sm.Previous_
 }
 
@@ -98,8 +98,8 @@ func (sm StoredMessage) ContentBytes() []byte {
 	return c.Content
 }
 
-func (sm StoredMessage) ValueContent() *ssb.Value {
-	var msg ssb.Value
+func (sm StoredMessage) ValueContent() *refs.Value {
+	var msg refs.Value
 	msg.Previous = sm.Previous_
 	msg.Author = *sm.Author_
 	msg.Sequence = sm.Sequence_

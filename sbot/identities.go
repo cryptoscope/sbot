@@ -4,14 +4,14 @@ package sbot
 
 import (
 	"github.com/pkg/errors"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message"
 	"go.cryptoscope.co/ssb/multilogs"
 	"go.cryptoscope.co/ssb/repo"
 )
 
-func (sbot *Sbot) PublishAs(nick string, val interface{}) (*ssb.MessageRef, error) {
+func (sbot *Sbot) PublishAs(nick string, val interface{}) (*refs.MessageRef, error) {
 	r := repo.New(sbot.repoPath)
 
 	uf, ok := sbot.GetMultiLog(multilogs.IndexNameFeeds)

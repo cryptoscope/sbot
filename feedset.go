@@ -7,6 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/librarian"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type strFeedMap map[librarian.Addr]struct{}
@@ -23,7 +24,7 @@ func NewFeedSet(size int) *StrFeedSet {
 	}
 }
 
-func (fs *StrFeedSet) AddStored(r *StorageRef) error {
+func (fs *StrFeedSet) AddStored(r *refs.StorageRef) error {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
@@ -36,7 +37,7 @@ func (fs *StrFeedSet) AddStored(r *StorageRef) error {
 	return nil
 }
 
-func (fs *StrFeedSet) AddRef(ref *FeedRef) error {
+func (fs *StrFeedSet) AddRef(ref *refs.FeedRef) error {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
@@ -46,7 +47,7 @@ func (fs *StrFeedSet) AddRef(ref *FeedRef) error {
 	return nil
 }
 
-func (fs *StrFeedSet) Delete(ref *FeedRef) error {
+func (fs *StrFeedSet) Delete(ref *refs.FeedRef) error {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	delete(fs.set, ref.StoredAddr())
@@ -59,15 +60,15 @@ func (fs *StrFeedSet) Count() int {
 	return len(fs.set)
 }
 
-func (fs StrFeedSet) List() ([]*FeedRef, error) {
+func (fs StrFeedSet) List() ([]*refs.FeedRef, error) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
-	var lst = make([]*FeedRef, len(fs.set))
+	var lst = make([]*refs.FeedRef, len(fs.set))
 
 	i := 0
 
 	for feed := range fs.set {
-		var sr StorageRef
+		var sr refs.StorageRef
 		err := sr.Unmarshal([]byte(feed))
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to decode map entry")
@@ -83,7 +84,7 @@ func (fs StrFeedSet) List() ([]*FeedRef, error) {
 	return lst, nil
 }
 
-func (fs StrFeedSet) Has(ref *FeedRef) bool {
+func (fs StrFeedSet) Has(ref *refs.FeedRef) bool {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	_, has := fs.set[ref.StoredAddr()]

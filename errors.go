@@ -8,6 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 var ErrShuttingDown = errors.Errorf("ssb: shutting down now") // this is fine
@@ -61,7 +62,7 @@ var ErrUnuspportedFormat = errors.Errorf("ssb: unsupported format")
 // ErrWrongSequence is returned if there is a glitch on the current
 // sequence number on the feed between in the offsetlog and the logical entry on the feed
 type ErrWrongSequence struct {
-	Ref             *FeedRef
+	Ref             *refs.FeedRef
 	Logical, Stored margaret.Seq
 }
 

@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"go.cryptoscope.co/margaret/multilog"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/ssb"
@@ -252,7 +253,7 @@ func benchSequential(i int) func(b *testing.B) {
 				} else {
 					r.NoError(err)
 				}
-				_, ok := v.(ssb.Message)
+				_, ok := v.(refs.Message)
 				r.True(ok)
 				// r.NotNil(msg.Key())
 				// r.NotNil(msg.Author())
@@ -291,7 +292,7 @@ func benchRandom(i int) func(b *testing.B) {
 			for _, seq := range seqs {
 				v, err := testLog.Get(seq)
 				r.NoError(err)
-				_, ok := v.(ssb.Message)
+				_, ok := v.(refs.Message)
 				r.True(ok)
 				// r.NotNil(msg.Key())
 				// r.NotNil(msg.Author())

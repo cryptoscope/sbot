@@ -16,6 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 )
@@ -141,7 +142,7 @@ type wantManager struct {
 	gauge  metrics.Gauge
 }
 
-func (wmgr *wantManager) getBlob(ctx context.Context, edp muxrpc.Endpoint, ref *ssb.BlobRef) error {
+func (wmgr *wantManager) getBlob(ctx context.Context, edp muxrpc.Endpoint, ref *refs.BlobRef) error {
 	log := log.With(wmgr.info, "event", "blobs.get", "ref", ref.ShortRef())
 
 	arg := GetWithSize{ref, wmgr.maxSize}
@@ -209,7 +210,7 @@ func (wmgr *wantManager) AllWants() []ssb.BlobWant {
 	defer wmgr.l.Unlock()
 	var bws []ssb.BlobWant
 	for ref, dist := range wmgr.wants {
-		br, err := ssb.ParseBlobRef(ref)
+		br, err := refs.ParseBlobRef(ref)
 		if err != nil {
 			panic(errors.Wrap(err, "invalid blob ref in want manager"))
 		}
@@ -221,7 +222,7 @@ func (wmgr *wantManager) AllWants() []ssb.BlobWant {
 	return bws
 }
 
-func (wmgr *wantManager) Wants(ref *ssb.BlobRef) bool {
+func (wmgr *wantManager) Wants(ref *refs.BlobRef) bool {
 	wmgr.l.Lock()
 	defer wmgr.l.Unlock()
 
@@ -229,11 +230,11 @@ func (wmgr *wantManager) Wants(ref *ssb.BlobRef) bool {
 	return ok
 }
 
-func (wmgr *wantManager) Want(ref *ssb.BlobRef) error {
+func (wmgr *wantManager) Want(ref *refs.BlobRef) error {
 	return wmgr.WantWithDist(ref, -1)
 }
 
-func (wmgr *wantManager) WantWithDist(ref *ssb.BlobRef, dist int64) error {
+func (wmgr *wantManager) WantWithDist(ref *refs.BlobRef, dist int64) error {
 	dbg := log.With(wmgr.info, "func", "WantWithDist", "ref", ref.ShortRef(), "dist", dist)
 	dbg = level.Debug(dbg)
 	_, err := wmgr.bs.Size(ref)
@@ -413,8 +414,8 @@ func (proc *wantProc) updateWants(ctx context.Context, v interface{}, err error)
 }
 
 type GetWithSize struct {
-	Key *ssb.BlobRef `json:"key"`
-	Max uint         `json:"max"`
+	Key *refs.BlobRef `json:"key"`
+	Max uint          `json:"max"`
 }
 
 func (proc *wantProc) Close() error {
@@ -497,7 +498,7 @@ type WantMsg []ssb.BlobWant
 }
 */
 func (msg WantMsg) MarshalJSON() ([]byte, error) {
-	wantsMap := make(map[*ssb.BlobRef]int64, len(msg))
+	wantsMap := make(map[*refs.BlobRef]int64, len(msg))
 	for _, want := range msg {
 		wantsMap[want.Ref] = want.Dist
 	}
@@ -521,7 +522,7 @@ func (msg *WantMsg) UnmarshalJSON(data []byte) error {
 
 	var wants []ssb.BlobWant
 	for ref, dist := range wantsMap {
-		br, err := ssb.ParseBlobRef(ref)
+		br, err := refs.ParseBlobRef(ref)
 		if err != nil {
 			fmt.Println(errors.Wrap(err, "WantMsg: error parsing blob reference"))
 			continue

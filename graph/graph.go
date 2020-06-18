@@ -8,6 +8,7 @@ import (
 
 	"go.cryptoscope.co/librarian"
 	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/path"
 	"gonum.org/v1/gonum/graph/simple"
@@ -28,7 +29,7 @@ func NewGraph() *Graph {
 	}
 }
 
-func (g *Graph) getEdge(from, to *ssb.FeedRef) (graph.WeightedEdge, bool) {
+func (g *Graph) getEdge(from, to *refs.FeedRef) (graph.WeightedEdge, bool) {
 	g.Mutex.Lock()
 	defer g.Mutex.Unlock()
 	nFrom, has := g.lookup[from.StoredAddr()]
@@ -46,7 +47,7 @@ func (g *Graph) getEdge(from, to *ssb.FeedRef) (graph.WeightedEdge, bool) {
 	return edg.(graph.WeightedEdge), true
 }
 
-func (g *Graph) Follows(from, to *ssb.FeedRef) bool {
+func (g *Graph) Follows(from, to *refs.FeedRef) bool {
 	w, has := g.getEdge(from, to)
 	if !has {
 		return false
@@ -54,7 +55,7 @@ func (g *Graph) Follows(from, to *ssb.FeedRef) bool {
 	return w.Weight() == 1
 }
 
-func (g *Graph) Blocks(from, to *ssb.FeedRef) bool {
+func (g *Graph) Blocks(from, to *refs.FeedRef) bool {
 	w, has := g.getEdge(from, to)
 	if !has {
 		return false
@@ -62,7 +63,7 @@ func (g *Graph) Blocks(from, to *ssb.FeedRef) bool {
 	return math.IsInf(w.Weight(), 1)
 }
 
-func (g *Graph) BlockedList(from *ssb.FeedRef) *ssb.StrFeedSet {
+func (g *Graph) BlockedList(from *refs.FeedRef) *ssb.StrFeedSet {
 	g.Mutex.Lock()
 	defer g.Mutex.Unlock()
 	blocked := ssb.NewFeedSet(0)
@@ -84,7 +85,7 @@ func (g *Graph) BlockedList(from *ssb.FeedRef) *ssb.StrFeedSet {
 	return blocked
 }
 
-func (g *Graph) MakeDijkstra(from *ssb.FeedRef) (*Lookup, error) {
+func (g *Graph) MakeDijkstra(from *refs.FeedRef) (*Lookup, error) {
 	g.Mutex.Lock()
 	defer g.Mutex.Unlock()
 	nFrom, has := g.lookup[from.StoredAddr()]

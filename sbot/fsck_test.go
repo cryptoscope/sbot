@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/internal/testutils"
@@ -197,7 +198,7 @@ func testFSCKmultipleFeeds(t *testing.T) {
 			r.NoError(err)
 		}
 
-		msg, ok := v.(ssb.Message)
+		msg, ok := v.(refs.Message)
 		r.True(ok)
 
 		seq, err := theBot.RootLog.Append(v)

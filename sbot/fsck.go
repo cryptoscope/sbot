@@ -14,6 +14,7 @@ import (
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/multilogs"
@@ -144,7 +145,7 @@ func lengthFSCK(authorMlog multilog.MultiLog, receiveLog margaret.Log) error {
 	}
 
 	for _, author := range feeds {
-		var sr ssb.StorageRef
+		var sr refs.StorageRef
 		err := sr.Unmarshal([]byte(author))
 		if err != nil {
 			return err
@@ -179,7 +180,7 @@ func lengthFSCK(authorMlog multilog.MultiLog, receiveLog margaret.Log) error {
 			}
 			return err
 		}
-		msg := rv.(ssb.Message)
+		msg := rv.(refs.Message)
 
 		// margaret indexes are 0-based, therefore +1
 		if msg.Seq() != currentSeqFromIndex.Seq()+1 {
@@ -273,7 +274,7 @@ func sequenceFSCK(receiveLog margaret.Log, progressFn FSCKUpdateFunc) error {
 
 		rxLogSeq := sw.Seq().Seq()
 		val := sw.Value()
-		msg, ok := val.(ssb.Message)
+		msg, ok := val.(refs.Message)
 		if !ok {
 			return fmt.Errorf("fsck/value: unexpected message type: %T (wanted %T)", val, msg)
 		}

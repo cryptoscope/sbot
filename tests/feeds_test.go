@@ -10,8 +10,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/internal/leakcheck"
 	"go.cryptoscope.co/ssb/internal/mutil"
 	"go.cryptoscope.co/ssb/sbot"
@@ -70,12 +70,12 @@ func TestFeedFromJS(t *testing.T) {
 	for i := 0; i < n; i++ { // don't check the contact:following message from A to C
 		msg, err := mutil.Indirect(bob.RootLog, aliceLog).Get(margaret.BaseSeq(i))
 		r.NoError(err)
-		storedMsg, ok := msg.(ssb.Message)
+		storedMsg, ok := msg.(refs.Message)
 		r.True(ok, "wrong type of message: %T", msg)
 		r.Equal(storedMsg.Seq(), margaret.BaseSeq(i+1).Seq())
 
 		type testWrap struct {
-			Author  ssb.FeedRef
+			Author  refs.FeedRef
 			Content struct {
 				Type, Text string
 				I          int
@@ -231,7 +231,7 @@ func TestFeedFromGo(t *testing.T) {
 	r.NoError(err)
 	msg, err := s.RootLog.Get(seqMsg.(margaret.BaseSeq))
 	r.NoError(err)
-	storedMsg, ok := msg.(ssb.Message)
+	storedMsg, ok := msg.(refs.Message)
 	r.True(ok, "wrong type of message: %T", msg)
 	r.EqualValues(storedMsg.Seq(), 2)
 
@@ -254,7 +254,7 @@ func TestFeedFromGo(t *testing.T) {
 	r.NoError(err)
 	msg, err = s.RootLog.Get(seqMsg.(margaret.BaseSeq))
 	r.NoError(err)
-	storedMsg, ok = msg.(ssb.Message)
+	storedMsg, ok = msg.(refs.Message)
 	r.True(ok, "wrong type of message: %T", msg)
 	r.EqualValues(storedMsg.Seq(), 2)
 
@@ -266,7 +266,7 @@ func TestFeedFromGo(t *testing.T) {
 	r.NoError(err)
 	msg, err = s.RootLog.Get(seqMsg.(margaret.BaseSeq))
 	r.NoError(err)
-	storedMsg, ok = msg.(ssb.Message)
+	storedMsg, ok = msg.(refs.Message)
 	r.True(ok, "wrong type of message: %T", msg)
 	r.EqualValues(storedMsg.Seq(), 3)
 
@@ -373,7 +373,7 @@ func XTestFeedFromGoLive(t *testing.T) {
 	r.NoError(err)
 	msg, err := s.RootLog.Get(seqMsg.(margaret.BaseSeq))
 	r.NoError(err)
-	storedMsg, ok := msg.(ssb.Message)
+	storedMsg, ok := msg.(refs.Message)
 	r.True(ok, "wrong type of message: %T", msg)
 	r.Equal(storedMsg.Seq(), margaret.BaseSeq(2).Seq())
 

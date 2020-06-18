@@ -10,8 +10,8 @@ import (
 	"strconv"
 
 	"go.cryptoscope.co/margaret"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/repo"
+	refs "go.mindeco.de/ssb-refs"
 
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/luigi"
@@ -63,7 +63,7 @@ func main() {
 
 		sv := sw.Value()
 
-		msg, ok := sv.(ssb.Message)
+		msg, ok := sv.(refs.Message)
 		if !ok {
 			panic("wrong message type")
 		}

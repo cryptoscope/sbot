@@ -6,10 +6,10 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/librarian"
 	"go.cryptoscope.co/margaret"
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
-func (s Sbot) Get(ref ssb.MessageRef) (ssb.Message, error) {
+func (s Sbot) Get(ref refs.MessageRef) (refs.Message, error) {
 	getIdx, ok := s.simpleIndex["get"]
 	if !ok {
 		return nil, errors.Errorf("sbot: get index disabled")
@@ -42,7 +42,7 @@ func (s Sbot) Get(ref ssb.MessageRef) (ssb.Message, error) {
 		return nil, errors.Wrap(err, "sbot/get: failed to load message")
 	}
 
-	msg, ok := storedV.(ssb.Message)
+	msg, ok := storedV.(refs.Message)
 	if !ok {
 		return nil, errors.Errorf("sbot/get: wrong message type in storeage: %T", storedV)
 	}

@@ -20,6 +20,7 @@ import (
 	"go.cryptoscope.co/margaret/multilog"
 	"go.cryptoscope.co/muxrpc"
 	"go.cryptoscope.co/ssb/message/legacy"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/crypto/nacl/auth"
 
 	"go.cryptoscope.co/ssb"
@@ -68,7 +69,7 @@ func (p *Plugin) updateIndex(db *badger.DB) librarian.SinkIndex {
 	p.h.state = libbadger.NewIndex(db, true)
 
 	idxSink := librarian.NewSinkIndex(func(ctx context.Context, seq margaret.Seq, val interface{}, idx librarian.SetterIndex) error {
-		msg, ok := val.(ssb.Message)
+		msg, ok := val.(refs.Message)
 		if !ok {
 			return fmt.Errorf("unexpeced stored message type: %T", val)
 		}
@@ -99,11 +100,11 @@ func (p *Plugin) updateIndex(db *badger.DB) librarian.SinkIndex {
 	return idxSink
 }
 
-func (p *Plugin) indexNewInvite(ctx context.Context, msg ssb.Message) error {
+func (p *Plugin) indexNewInvite(ctx context.Context, msg refs.Message) error {
 
 	var invCore struct {
-		Invite *ssb.FeedRef `json:"invite"`
-		Host   *ssb.FeedRef `json:"host"`
+		Invite *refs.FeedRef `json:"invite"`
+		Host   *refs.FeedRef `json:"host"`
 	}
 	err := json.Unmarshal(msg.ContentBytes(), &invCore)
 	if err != nil {
@@ -143,7 +144,7 @@ func (p *Plugin) indexNewInvite(ctx context.Context, msg ssb.Message) error {
 	return p.h.state.Set(ctx, idxAddr, true)
 }
 
-func (p *Plugin) indexConfirm(ctx context.Context, msg ssb.Message) error {
+func (p *Plugin) indexConfirm(ctx context.Context, msg refs.Message) error {
 	var invConfirm struct {
 		Embed struct {
 			Content acceptContent `json:"content"`
@@ -164,8 +165,8 @@ func (p *Plugin) indexConfirm(ctx context.Context, msg ssb.Message) error {
 	}
 
 	var invCore struct {
-		Invite *ssb.FeedRef `json:"invite"`
-		Host   *ssb.FeedRef `json:"host"`
+		Invite *refs.FeedRef `json:"invite"`
+		Host   *refs.FeedRef `json:"host"`
 	}
 
 	if err := json.Unmarshal(reciept.ContentBytes(), &invCore); err != nil {
@@ -177,7 +178,7 @@ func (p *Plugin) indexConfirm(ctx context.Context, msg ssb.Message) error {
 	return p.h.state.Set(ctx, idxAddr, false)
 }
 
-func (p *Plugin) Authorize(to *ssb.FeedRef) error {
+func (p *Plugin) Authorize(to *refs.FeedRef) error {
 	obv, err := p.h.state.Get(context.Background(), librarian.Addr(to.Ref()))
 	if err != nil {
 		return errors.Wrap(err, "idx state get failed")
@@ -258,7 +259,7 @@ func (h handler) HandleCall(ctx context.Context, req *muxrpc.Request, edp muxrpc
 		// req.CloseWithError(fmt.Errorf("sorry"))
 	case "peerInvites.getInvite":
 
-		ref, err := ssb.ParseMessageRef(req.Args()[0].(string))
+		ref, err := refs.ParseMessageRef(req.Args()[0].(string))
 		if err != nil {
 			req.CloseWithError(errors.Wrap(err, "failed to parse arguments"))
 			return
@@ -273,8 +274,8 @@ func (h handler) HandleCall(ctx context.Context, req *muxrpc.Request, edp muxrpc
 
 		// invite data matches
 		var invCore struct {
-			Invite *ssb.FeedRef `json:"invite"`
-			Host   *ssb.FeedRef `json:"host"`
+			Invite *refs.FeedRef `json:"invite"`
+			Host   *refs.FeedRef `json:"host"`
 		}
 		err = json.Unmarshal(msg.ContentBytes(), &invCore)
 		if err != nil {
@@ -335,11 +336,11 @@ func (h handler) HandleCall(ctx context.Context, req *muxrpc.Request, edp muxrpc
 		// legacy contact message
 		// confirm should implicate alice<>bob are friends
 		_, err = h.pub.Publish(struct {
-			Type       string          `json:"type"`
-			Contact    *ssb.FeedRef    `json:"contact"`
-			Following  bool            `json:"following"`
-			AutoFollow bool            `json:"auto"`
-			Receipt    *ssb.MessageRef `json:"peerReceipt"`
+			Type       string           `json:"type"`
+			Contact    *refs.FeedRef    `json:"contact"`
+			Following  bool             `json:"following"`
+			AutoFollow bool             `json:"auto"`
+			Receipt    *refs.MessageRef `json:"peerReceipt"`
 		}{"contact", accept.ID, true, true, accept.Receipt})
 		if err != nil {
 			req.CloseWithError(errors.Wrap(err, "failed to publish confirm message"))
@@ -356,7 +357,7 @@ func (h handler) HandleCall(ctx context.Context, req *muxrpc.Request, edp muxrpc
 //  from 2.0: hash("peer-invites")
 var peerCap = [32]byte{29, 61, 48, 33, 139, 164, 220, 229, 156, 216, 91, 90, 9, 241, 205, 157, 169, 21, 235, 200, 210, 25, 26, 227, 68, 195, 253, 42, 139, 59, 33, 7}
 
-func verifyAcceptMessage(raw []byte, guestID *ssb.FeedRef) (*acceptContent, error) {
+func verifyAcceptMessage(raw []byte, guestID *refs.FeedRef) (*acceptContent, error) {
 	var rawContent struct {
 		Content json.RawMessage
 	}
@@ -384,7 +385,7 @@ func verifyAcceptMessage(raw []byte, guestID *ssb.FeedRef) (*acceptContent, erro
 	}
 
 	var inviteAccept struct {
-		Author  *ssb.FeedRef `json:"author"`
+		Author  *refs.FeedRef `json:"author"`
 		Content acceptContent
 	}
 
@@ -404,8 +405,8 @@ func verifyAcceptMessage(raw []byte, guestID *ssb.FeedRef) (*acceptContent, erro
 }
 
 type acceptContent struct {
-	Type    string          `json:"type"`
-	Receipt *ssb.MessageRef `json:"receipt"`
-	ID      *ssb.FeedRef    `json:"id"`
+	Type    string           `json:"type"`
+	Receipt *refs.MessageRef `json:"receipt"`
+	ID      *refs.FeedRef    `json:"id"`
 	// Key     string          `json:"key"` only needed for reveal
 }

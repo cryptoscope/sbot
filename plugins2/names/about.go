@@ -19,6 +19,7 @@ import (
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/client"
 	"go.cryptoscope.co/ssb/repo"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type aboutStore struct {
@@ -34,8 +35,8 @@ type AboutAttribute struct {
 	Prescribed map[string]int
 }
 
-func (ab aboutStore) ImageFor(ref *ssb.FeedRef) (*ssb.BlobRef, error) {
-	var br ssb.BlobRef
+func (ab aboutStore) ImageFor(ref *refs.FeedRef) (*refs.BlobRef, error) {
+	var br refs.BlobRef
 
 	err := ab.kv.View(func(txn *badger.Txn) error {
 		addr := ref.Ref()
@@ -48,7 +49,7 @@ func (ab aboutStore) ImageFor(ref *ssb.FeedRef) (*ssb.BlobRef, error) {
 		}
 
 		err = it.Value(func(v []byte) error {
-			newBlobR, err := ssb.ParseBlobRef(string(v))
+			newBlobR, err := refs.ParseBlobRef(string(v))
 			if err != nil {
 				return err
 			}
@@ -116,7 +117,7 @@ func (ab aboutStore) All() (client.NamesGetResult, error) {
 	return ngr, err
 }
 
-func (ab aboutStore) CollectedFor(ref *ssb.FeedRef) (*AboutInfo, error) {
+func (ab aboutStore) CollectedFor(ref *refs.FeedRef) (*AboutInfo, error) {
 	addr := []byte(ref.Ref() + ":")
 	// from self
 	// addr = append(addr, ref.ID...)
@@ -146,7 +147,7 @@ func (ab aboutStore) CollectedFor(ref *ssb.FeedRef) (*AboutInfo, error) {
 			k := it.Key()
 			splitted := bytes.Split(k, []byte(":"))
 
-			c, err := ssb.ParseFeedRef(string(splitted[0]))
+			c, err := refs.ParseFeedRef(string(splitted[0]))
 			if err != nil {
 				return errors.Wrapf(err, "about: couldnt make author ref from db key: %s", splitted)
 			}
@@ -216,7 +217,7 @@ func (plug *Plugin) MakeSimpleIndex(r repo.Interface) (librarian.Index, libraria
 }
 
 func updateAboutMessage(ctx context.Context, seq margaret.Seq, msgv interface{}, idx librarian.SetterIndex) error {
-	msg, ok := msgv.(ssb.Message)
+	msg, ok := msgv.(refs.Message)
 	if !ok {
 		if margaret.IsErrNulled(msgv.(error)) {
 			return nil
@@ -224,7 +225,7 @@ func updateAboutMessage(ctx context.Context, seq margaret.Seq, msgv interface{},
 		return fmt.Errorf("about(%d): wrong msgT: %T", seq, msgv)
 	}
 
-	var aboutMSG ssb.About
+	var aboutMSG refs.About
 	err := json.Unmarshal(msg.ContentBytes(), &aboutMSG)
 	if err != nil {
 		// fmt.Println("msg", "skipped contact message", "reason", err)

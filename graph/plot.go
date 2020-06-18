@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/encoding"
 	"gonum.org/v1/gonum/graph/encoding/dot"
@@ -66,7 +66,7 @@ func (g *Graph) Attributes() []encoding.Attribute {
 
 type contactNode struct {
 	graph.Node
-	feed *ssb.FeedRef
+	feed *refs.FeedRef
 	name string
 }
 

@@ -10,6 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 func DefaultKeyPair(r Interface) (*ssb.KeyPair, error) {
@@ -50,7 +51,7 @@ func newKeyPair(r Interface, name, algo string, seed io.Reader) (*ssb.KeyPair, e
 			return nil, err
 		}
 	}
-	if algo != ssb.RefAlgoFeedSSB1 && algo != ssb.RefAlgoFeedGabby { //  enums would be nice
+	if algo != refs.RefAlgoFeedSSB1 && algo != refs.RefAlgoFeedGabby { //  enums would be nice
 		return nil, errors.Errorf("invalid feed refrence algo")
 	}
 	if _, err := ssb.LoadKeyPair(secPath); err == nil {

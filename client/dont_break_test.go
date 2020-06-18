@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/client"
@@ -63,7 +64,7 @@ func TestAskForSomethingWeird(t *testing.T) {
 	a.Equal(srv.KeyPair.Id.Ref(), ref.Ref())
 
 	// make sure we can publish
-	var msgs []*ssb.MessageRef
+	var msgs []*refs.MessageRef
 	const msgCount = 15
 	for i := 0; i < msgCount; i++ {
 		ref, err := c.Publish(struct{ I int }{i})
@@ -94,7 +95,7 @@ func TestAskForSomethingWeird(t *testing.T) {
 
 		if i == 5 {
 			var o message.CreateHistArgs
-			o.ID = &ssb.FeedRef{
+			o.ID = &refs.FeedRef{
 				Algo: "wrong",
 				ID:   bytes.Repeat([]byte("nope"), 8),
 			}
@@ -113,7 +114,7 @@ func TestAskForSomethingWeird(t *testing.T) {
 			t.Log(callErr)
 		}
 
-		msg, ok := v.(ssb.Message)
+		msg, ok := v.(refs.Message)
 		r.True(ok, "%d: wrong type: %T", i, v)
 
 		r.True(msg.Key().Equal(*msgs[i]), "wrong message %d", i)

@@ -16,6 +16,7 @@ import (
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/muxrpc"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/sync/errgroup"
 
 	"go.cryptoscope.co/ssb"
@@ -55,7 +56,7 @@ func TestUnixSock(t *testing.T) {
 	a.Equal(srv.KeyPair.Id.Ref(), ref.Ref())
 
 	// make sure we can publish
-	var msgs []*ssb.MessageRef
+	var msgs []*refs.MessageRef
 	const msgCount = 15
 	for i := 0; i < msgCount; i++ {
 		ref, err := c.Publish(struct{ I int }{i})
@@ -85,7 +86,7 @@ func TestUnixSock(t *testing.T) {
 		}
 		r.NotNil(v)
 
-		msg, ok := v.(ssb.Message)
+		msg, ok := v.(refs.Message)
 		r.True(ok, "%d: wrong type: %T", i, v)
 
 		r.True(msg.Key().Equal(*msgs[i]), "wrong message %d", i)
@@ -325,7 +326,7 @@ func LotsOfStatusCalls(newPair mkPair) func(t *testing.T) {
 			v, err := src.Next(ctx)
 			r.NoError(err, "message live err %d errored", i)
 
-			msg, ok := v.(ssb.Message)
+			msg, ok := v.(refs.Message)
 			r.True(ok, "not a message: %T", v)
 
 			a.Equal(msg.Key().Hash, ref.Hash, "wrong message: %d - %s", i, ref.Ref())
@@ -400,7 +401,7 @@ func TestPublish(t *testing.T) {
 	a.Equal(wantSeq, seqv)
 	msgv, err := srv.RootLog.Get(wantSeq)
 	r.NoError(err)
-	newMsg, ok := msgv.(ssb.Message)
+	newMsg, ok := msgv.(refs.Message)
 	r.True(ok)
 	r.Equal(newMsg.Key(), ref)
 
@@ -413,7 +414,7 @@ func TestPublish(t *testing.T) {
 
 	streamV, err := src.Next(context.TODO())
 	r.NoError(err)
-	streamMsg, ok := streamV.(ssb.Message)
+	streamMsg, ok := streamV.(refs.Message)
 	r.True(ok, "acutal type: %T", streamV)
 	a.Equal(newMsg.Author().Ref(), streamMsg.Author().Ref())
 	a.EqualValues(newMsg.Seq(), streamMsg.Seq())
@@ -465,7 +466,7 @@ func TestTangles(t *testing.T) {
 	type testMsg struct {
 		Foo  string
 		Bar  int
-		Root *ssb.MessageRef `json:"root,omitempty"`
+		Root *refs.MessageRef `json:"root,omitempty"`
 	}
 	msg := testMsg{"hello", 23, nil}
 	rootRef, err := c.Publish(msg)
@@ -491,14 +492,14 @@ func TestTangles(t *testing.T) {
 
 	streamV, err := src.Next(context.TODO())
 	r.NoError(err)
-	streamMsg, ok := streamV.(ssb.Message)
+	streamMsg, ok := streamV.(refs.Message)
 	r.True(ok)
 
 	a.EqualValues(2, streamMsg.Seq())
 
 	streamV, err = src.Next(context.TODO())
 	r.NoError(err)
-	streamMsg, ok = streamV.(ssb.Message)
+	streamMsg, ok = streamV.(refs.Message)
 	r.True(ok)
 	a.EqualValues(3, streamMsg.Seq())
 

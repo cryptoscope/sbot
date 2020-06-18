@@ -76,7 +76,7 @@ func TestReadStreamAsInterfaceMessage(t *testing.T) {
 		a.Equal(wantSeq, seqv)
 		msgv, err := srv.RootLog.Get(wantSeq)
 		r.NoError(err)
-		newMsg, ok := msgv.(ssb.Message)
+		newMsg, ok := msgv.(refs.Message)
 		r.True(ok)
 		r.Equal(newMsg.Key(), ref)
 		refs = append(refs, ref.Ref())
@@ -91,7 +91,7 @@ func TestReadStreamAsInterfaceMessage(t *testing.T) {
 
 		streamV, err := src.Next(context.TODO())
 		r.NoError(err, "failed to next msg:%d", i)
-		streamMsg, ok := streamV.(ssb.Message)
+		streamMsg, ok := streamV.(refs.Message)
 		r.True(ok, "acutal type: %T", streamV)
 		a.Equal(newMsg.Author().Ref(), streamMsg.Author().Ref())
 
@@ -112,7 +112,7 @@ func TestReadStreamAsInterfaceMessage(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		streamV, err := src.Next(context.TODO())
 		r.NoError(err, "failed to next msg:%d", i)
-		msg, ok := streamV.(ssb.Message)
+		msg, ok := streamV.(refs.Message)
 		r.True(ok, "acutal type: %T", streamV)
 		a.Equal(refs[i], msg.Key().Ref())
 	}

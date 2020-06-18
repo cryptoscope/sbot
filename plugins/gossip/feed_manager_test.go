@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/stretchr/testify/require"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
@@ -26,8 +27,8 @@ import (
 func requireFeedRef(
 	t *testing.T,
 	arg string,
-) *ssb.FeedRef {
-	ret, err := ssb.ParseFeedRef(arg)
+) *refs.FeedRef {
+	ret, err := refs.ParseFeedRef(arg)
 	require.NoError(t, err)
 	return ret
 }

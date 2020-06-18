@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/traverse"
@@ -60,7 +61,7 @@ func (b *logBuilder) startQuery(ctx context.Context) {
 }
 
 // DeleteAuthor just triggers a rebuild (and expects the author to have dissapeard from the message source)
-func (b *logBuilder) DeleteAuthor(who *ssb.FeedRef) error {
+func (b *logBuilder) DeleteAuthor(who *refs.FeedRef) error {
 	b.current.Lock()
 	defer b.current.Unlock()
 
@@ -74,7 +75,7 @@ func (b *logBuilder) DeleteAuthor(who *ssb.FeedRef) error {
 	return nil
 }
 
-func (b *logBuilder) Authorizer(from *ssb.FeedRef, maxHops int) ssb.Authorizer {
+func (b *logBuilder) Authorizer(from *refs.FeedRef, maxHops int) ssb.Authorizer {
 	return &authorizer{
 		b:       b,
 		from:    from,
@@ -107,13 +108,13 @@ func (b *logBuilder) buildGraph(ctx context.Context, v interface{}, err error) e
 	defer b.current.Unlock()
 	dg := b.current.WeightedDirectedGraph
 
-	abs, ok := v.(ssb.Message)
+	abs, ok := v.(refs.Message)
 	if !ok {
 		err := errors.Errorf("graph/idx: invalid msg value %T", v)
 		return err
 	}
 
-	var c ssb.Contact
+	var c refs.Contact
 	err = c.UnmarshalJSON(abs.ContentBytes())
 	if err != nil {
 		// ignore invalid messages
@@ -132,7 +133,7 @@ func (b *logBuilder) buildGraph(ctx context.Context, v interface{}, err error) e
 	nFrom, has := b.current.lookup[bfrom]
 	if !has {
 		// stupid copy
-		sr, err := ssb.NewStorageRef(author)
+		sr, err := refs.NewStorageRef(author)
 		if err != nil {
 			return errors.Wrap(err, "failed to create graph node for author")
 		}
@@ -148,7 +149,7 @@ func (b *logBuilder) buildGraph(ctx context.Context, v interface{}, err error) e
 	bto := contact.StoredAddr()
 	nTo, has := b.current.lookup[bto]
 	if !has {
-		sr, err := ssb.NewStorageRef(contact)
+		sr, err := refs.NewStorageRef(contact)
 		if err != nil {
 			return errors.Wrap(err, "failed to create graph node for contact")
 		}
@@ -182,7 +183,7 @@ func (b *logBuilder) buildGraph(ctx context.Context, v interface{}, err error) e
 	return nil
 }
 
-func (b *logBuilder) Follows(from *ssb.FeedRef) (*ssb.StrFeedSet, error) {
+func (b *logBuilder) Follows(from *refs.FeedRef) (*ssb.StrFeedSet, error) {
 	g, err := b.Build()
 	if err != nil {
 		return nil, errors.Wrap(err, "follows: couldn't build graph")
@@ -210,7 +211,7 @@ func (b *logBuilder) Follows(from *ssb.FeedRef) (*ssb.StrFeedSet, error) {
 	return refs, nil
 }
 
-func (b *logBuilder) Hops(from *ssb.FeedRef, max int) *ssb.StrFeedSet {
+func (b *logBuilder) Hops(from *refs.FeedRef, max int) *ssb.StrFeedSet {
 	g, err := b.Build()
 	if err != nil {
 		panic(err)
@@ -257,7 +258,7 @@ func (b *logBuilder) Hops(from *ssb.FeedRef, max int) *ssb.StrFeedSet {
 	return fs
 }
 
-func (bld *logBuilder) State(a, b *ssb.FeedRef) int {
+func (bld *logBuilder) State(a, b *refs.FeedRef) int {
 	g, err := bld.Build()
 	if err != nil {
 		panic(err)

@@ -15,6 +15,7 @@ import (
 	"go.cryptoscope.co/secretstream"
 	"go.cryptoscope.co/ssb/internal/muxmux"
 	multiserver "go.mindeco.de/ssb-multiserver"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 )
@@ -43,7 +44,7 @@ func New(i logging.Interface, n ssb.Network, r ssb.Replicator) muxrpc.Handler {
 	return &mux
 }
 
-type actionMap map[*ssb.FeedRef]bool
+type actionMap map[*refs.FeedRef]bool
 
 type actionFn func(context.Context, actionMap) error
 
@@ -51,37 +52,37 @@ type actionFn func(context.Context, actionMap) error
 // this hack unboxes [{ feed:bool, feed2:bool, ...}] and [feed1,feed2,...] (all implicit true) into an actionMap and passes it to next
 func unmarshalActionMap(next actionFn) muxmux.AsyncFunc {
 	return muxmux.AsyncFunc(func(ctx context.Context, r *muxrpc.Request) (interface{}, error) {
-		var refs actionMap
+		var refMap actionMap
 		var args []map[string]bool
 		err := json.Unmarshal(r.RawArgs, &args)
 		if err != nil {
 			// failed, trying array of feed strings
-			var ref []*ssb.FeedRef
+			var ref []*refs.FeedRef
 			err = json.Unmarshal(r.RawArgs, &ref)
 			if err != nil {
 				return nil, fmt.Errorf("action unmarshal: bad arguments: %w", err)
 			}
-			refs = make(actionMap, len(ref))
+			refMap = make(actionMap, len(ref))
 			for _, v := range ref {
-				refs[v] = true
+				refMap[v] = true
 			}
 		} else { // assuming array with one object
 			if len(args) != 1 {
 				return nil, fmt.Errorf("action unrmashal: expect one object")
 			}
-			refs = make(actionMap, len(args[0]))
+			refMap = make(actionMap, len(args[0]))
 			for r, a := range args[0] {
-				ref, err := ssb.ParseFeedRef(r)
+				ref, err := refs.ParseFeedRef(r)
 				if err != nil {
 					return nil, err
 				}
-				refs[ref] = a
+				refMap[ref] = a
 			}
 		}
-		if err := next(ctx, refs); err != nil {
+		if err := next(ctx, refMap); err != nil {
 			return nil, err
 		}
-		return fmt.Sprintf("updated %d feeds", len(refs)), nil
+		return fmt.Sprintf("updated %d feeds", len(refMap)), nil
 	})
 }
 

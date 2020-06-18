@@ -9,17 +9,17 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/graph"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type sourceDestArg struct {
-	Source ssb.FeedRef `json:"source"`
-	Dest   ssb.FeedRef `json:"dest"`
+	Source refs.FeedRef `json:"source"`
+	Dest   refs.FeedRef `json:"dest"`
 }
 
 type isFollowingH struct {
-	self ssb.FeedRef
+	self refs.FeedRef
 
 	log log.Logger
 
@@ -46,7 +46,7 @@ func (h isFollowingH) HandleAsync(ctx context.Context, req *muxrpc.Request) (int
 }
 
 type isBlockingH struct {
-	self ssb.FeedRef
+	self refs.FeedRef
 
 	log log.Logger
 
@@ -72,7 +72,7 @@ func (h isBlockingH) HandleAsync(ctx context.Context, req *muxrpc.Request) (inte
 }
 
 type plotSVGHandler struct {
-	self ssb.FeedRef
+	self refs.FeedRef
 
 	log log.Logger
 

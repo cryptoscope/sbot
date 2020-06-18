@@ -18,6 +18,7 @@ import (
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/muxrpc"
 	"go.cryptoscope.co/muxrpc/codec"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/sync/errgroup"
 
 	"go.cryptoscope.co/ssb"
@@ -44,7 +45,7 @@ func (h *handler) fetchAll(
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	fetchGroup, ctx := errgroup.WithContext(ctx)
-	work := make(chan *ssb.FeedRef)
+	work := make(chan *refs.FeedRef)
 
 	n := 1 + (len(lst) / 10)
 	// this doesnt pipeline super well
@@ -73,7 +74,7 @@ func (h *handler) fetchAll(
 	return err
 }
 
-func (h *handler) makeWorker(work <-chan *ssb.FeedRef, ctx context.Context, edp muxrpc.Endpoint) func() error {
+func (h *handler) makeWorker(work <-chan *refs.FeedRef, ctx context.Context, edp muxrpc.Endpoint) func() error {
 	started := time.Now()
 	return func() error {
 		for ref := range work {
@@ -90,7 +91,7 @@ func (h *handler) makeWorker(work <-chan *ssb.FeedRef, ctx context.Context, edp 
 	}
 }
 
-func isIn(list []librarian.Addr, a *ssb.FeedRef) bool {
+func isIn(list []librarian.Addr, a *refs.FeedRef) bool {
 	for _, el := range list {
 		if bytes.Equal([]byte(a.StoredAddr()), []byte(el)) {
 			return true
@@ -102,7 +103,7 @@ func isIn(list []librarian.Addr, a *ssb.FeedRef) bool {
 // fetchFeed requests the feed fr from endpoint e into the repo of the handler
 func (g *handler) fetchFeed(
 	ctx context.Context,
-	fr *ssb.FeedRef,
+	fr *refs.FeedRef,
 	edp muxrpc.Endpoint,
 	started time.Time,
 ) error {
@@ -145,7 +146,7 @@ func (g *handler) fetchFeed(
 	}
 	var (
 		latestSeq margaret.BaseSeq
-		latestMsg ssb.Message
+		latestMsg refs.Message
 	)
 	switch v := latest.(type) {
 	case librarian.UnsetValue:
@@ -163,7 +164,7 @@ func (g *handler) fetchFeed(
 			}
 
 			var ok bool
-			latestMsg, ok = msgV.(ssb.Message)
+			latestMsg, ok = msgV.(refs.Message)
 			if !ok {
 				return errors.Errorf("fetch: wrong message type. expected %T - got %T", latestMsg, msgV)
 			}
@@ -219,9 +220,9 @@ func (g *handler) fetchFeed(
 	)
 
 	switch fr.Algo {
-	case ssb.RefAlgoFeedSSB1:
+	case refs.RefAlgoFeedSSB1:
 		src, err = edp.Source(toLong, json.RawMessage{}, method, q)
-	case ssb.RefAlgoFeedGabby:
+	case refs.RefAlgoFeedGabby:
 		src, err = edp.Source(toLong, codec.Body{}, method, q)
 	}
 	if err != nil {

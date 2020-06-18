@@ -10,6 +10,7 @@ import (
 	goon "github.com/shurcooL/go-goon"
 	"go.cryptoscope.co/muxrpc"
 	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 	cli "gopkg.in/urfave/cli.v2"
 )
 
@@ -115,7 +116,7 @@ var publishVoteCmd = &cli.Command{
 		&cli.StringSliceFlag{Name: "recps", Usage: "as a PM to these feeds"},
 	},
 	Action: func(ctx *cli.Context) error {
-		mref, err := ssb.ParseMessageRef(ctx.Args().First())
+		mref, err := refs.ParseMessageRef(ctx.Args().First())
 		if err != nil {
 			return errors.Wrapf(err, "publish/vote: invalid msg ref")
 		}
@@ -170,7 +171,7 @@ var publishAboutCmd = &cli.Command{
 		&cli.StringFlag{Name: "image", Usage: "image blob ref"},
 	},
 	Action: func(ctx *cli.Context) error {
-		aboutRef, err := ssb.ParseFeedRef(ctx.Args().First())
+		aboutRef, err := refs.ParseFeedRef(ctx.Args().First())
 		if err != nil {
 			return errors.Wrapf(err, "publish/about: invalid feed ref")
 		}
@@ -215,7 +216,7 @@ var publishContactCmd = &cli.Command{
 		&cli.StringSliceFlag{Name: "recps", Usage: "as a PM to these feeds"},
 	},
 	Action: func(ctx *cli.Context) error {
-		cref, err := ssb.ParseFeedRef(ctx.Args().First())
+		cref, err := refs.ParseFeedRef(ctx.Args().First())
 		if err != nil {
 			return errors.Wrapf(err, "publish/contact: invalid feed ref")
 		}

@@ -24,6 +24,7 @@ import (
 	"go.cryptoscope.co/netwrap"
 	"go.cryptoscope.co/secretstream"
 	"go.cryptoscope.co/secretstream/secrethandshake"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/internal/neterr"
@@ -239,7 +240,7 @@ func (n *node) GetConnTracker() ssb.ConnTracker {
 // GetEndpointFor returns a muxrpc endpoint to call the remote identified by the passed feed ref
 // retruns false if there is no such connection
 // TODO: merge with conntracker
-func (n *node) GetEndpointFor(ref *ssb.FeedRef) (muxrpc.Endpoint, bool) {
+func (n *node) GetEndpointFor(ref *refs.FeedRef) (muxrpc.Endpoint, bool) {
 	if ref == nil {
 		return nil, false
 	}
@@ -258,7 +259,7 @@ func (n *node) GetAllEndpoints() []ssb.EndpointStat {
 	var stats []ssb.EndpointStat
 
 	for ref, edp := range n.remotes {
-		id, _ := ssb.ParseFeedRef(ref)
+		id, _ := refs.ParseFeedRef(ref)
 		remote := edp.Remote()
 		ok, durr := n.connTracker.Active(remote)
 		if !ok {

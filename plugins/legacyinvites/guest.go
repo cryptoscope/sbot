@@ -7,6 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/muxrpc"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 )
@@ -27,7 +28,7 @@ func (h acceptHandler) HandleCall(ctx context.Context, req *muxrpc.Request, edp 
 
 	// parse passed arguments
 	var args []struct {
-		Feed *ssb.FeedRef `json:"feed"`
+		Feed *refs.FeedRef `json:"feed"`
 	}
 	if err := json.Unmarshal(req.RawArgs, &args); err != nil {
 		fmt.Println("accept:", string(req.RawArgs))
@@ -111,13 +112,13 @@ func (h acceptHandler) HandleCall(ctx context.Context, req *muxrpc.Request, edp 
 
 	// publish follow for requested Feed
 	var contactWithNote struct {
-		*ssb.Contact
+		*refs.Contact
 		Note string `json:"note,omitempty"`
 		Pub  bool   `json:"pub"`
 	}
 	contactWithNote.Pub = true
 	contactWithNote.Note = st.Note
-	contactWithNote.Contact = ssb.NewContactFollow(arg.Feed)
+	contactWithNote.Contact = refs.NewContactFollow(arg.Feed)
 
 	seq, err := h.service.publish.Append(contactWithNote)
 	if err != nil {

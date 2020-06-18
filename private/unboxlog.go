@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 
 	"github.com/cryptix/go/encodedTime"
+	refs "go.mindeco.de/ssb-refs"
 
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/luigi"
@@ -80,7 +81,7 @@ func (il unboxedLog) Query(args ...margaret.QuerySpec) (luigi.Source, error) {
 			return nil, errors.Wrapf(err, "unboxLog: error getting v(%d) from seqlog log", rootSeq.Seq())
 		}
 
-		amsg, ok := val.(ssb.Message)
+		amsg, ok := val.(refs.Message)
 		if !ok {
 			return nil, errors.Errorf("wrong message type. expected %T - got %T", amsg, val)
 		}
@@ -89,7 +90,7 @@ func (il unboxedLog) Query(args ...margaret.QuerySpec) (luigi.Source, error) {
 
 		var boxedContent []byte
 		switch author.Algo {
-		case ssb.RefAlgoFeedSSB1:
+		case refs.RefAlgoFeedSSB1:
 			input := amsg.ContentBytes()
 			if !(input[0] == '"' && input[len(input)-1] == '"') {
 				return nil, errors.Errorf("expected json string with quotes")
@@ -103,7 +104,7 @@ func (il unboxedLog) Query(args ...margaret.QuerySpec) (luigi.Source, error) {
 			}
 			boxedContent = boxedData[:n]
 
-		case ssb.RefAlgoFeedGabby:
+		case refs.RefAlgoFeedGabby:
 			boxedContent = bytes.TrimPrefix(amsg.ContentBytes(), []byte("box1:"))
 
 		default:
@@ -115,7 +116,7 @@ func (il unboxedLog) Query(args ...margaret.QuerySpec) (luigi.Source, error) {
 			return nil, errors.Wrap(err, "unboxLog: unbox failed")
 		}
 
-		var msg ssb.KeyValueRaw
+		var msg refs.KeyValueRaw
 		msg.Key_ = amsg.Key()
 		msg.Timestamp = encodedTime.Millisecs(amsg.Received())
 		msg.Value.Previous = amsg.Previous()

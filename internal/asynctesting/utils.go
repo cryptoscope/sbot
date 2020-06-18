@@ -14,8 +14,8 @@ import (
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/repo"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 func CheckTypes(t *testing.T, tipe string, tExpected []string, rootLog margaret.Log, mt multilog.MultiLog) {
@@ -61,7 +61,7 @@ func MakeCompareSink(texpected []string, rootLog margaret.Log) (luigi.FuncSink, 
 
 		m := make(map[string]interface{})
 
-		abs := v.(ssb.Message)
+		abs := v.(refs.Message)
 		err = json.Unmarshal(abs.ContentBytes(), &m)
 		if err != nil {
 			return errors.Errorf("error decoding stored message %q", v)

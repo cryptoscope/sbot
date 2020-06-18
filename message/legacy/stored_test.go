@@ -6,9 +6,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"go.cryptoscope.co/ssb"
-
 	"github.com/stretchr/testify/require"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 func TestAbstractStored(t *testing.T) {
@@ -18,7 +17,7 @@ func TestAbstractStored(t *testing.T) {
 	m.Author_ = testMessages[1].Author
 	m.Raw_ = testMessages[1].Input
 
-	var a ssb.Message = m
+	var a refs.Message = m
 	c := a.ContentBytes()
 	r.NotNil(c)
 	r.True(len(c) > 0)

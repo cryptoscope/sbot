@@ -9,6 +9,7 @@ import (
 	"github.com/cryptix/go/logging"
 	"github.com/go-kit/kit/log/level"
 	"github.com/pkg/errors"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc"
@@ -19,7 +20,7 @@ import (
 type createWantsHandler struct {
 	log logging.Interface
 
-	self ssb.FeedRef
+	self refs.FeedRef
 
 	bs ssb.BlobStore
 	wm ssb.WantManager

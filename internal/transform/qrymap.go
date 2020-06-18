@@ -11,9 +11,9 @@ import (
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/luigi/mfr"
 	"go.cryptoscope.co/margaret"
-	"go.cryptoscope.co/ssb/message/multimsg"
 
-	"go.cryptoscope.co/ssb"
+	"go.cryptoscope.co/ssb/message/multimsg"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 // NewKeyValueWrapper turns a value into a key-value message.
@@ -45,16 +45,16 @@ func NewKeyValueWrapper(output luigi.Sink, keyWrap bool) luigi.Sink {
 	mapToKV := mfr.SinkMap(output, func(ctx context.Context, v interface{}) (interface{}, error) {
 		var seqWrap margaret.SeqWrapper
 
-		var abs ssb.Message
+		var abs refs.Message
 		switch tv := v.(type) {
-		case ssb.Message:
+		case refs.Message:
 			abs = tv
 		case margaret.SeqWrapper:
 			seqWrap = tv
 
 			sv := tv.Value()
 			var ok bool
-			abs, ok = sv.(ssb.Message)
+			abs, ok = sv.(refs.Message)
 			if !ok {
 				return nil, errors.Errorf("kvwrap: wrong message type in seqWrapper - got %T", sv)
 			}
@@ -78,7 +78,7 @@ func NewKeyValueWrapper(output luigi.Sink, keyWrap bool) luigi.Sink {
 			return json.RawMessage(abs.ValueContentJSON()), nil
 		}
 
-		var kv ssb.KeyValueRaw
+		var kv refs.KeyValueRaw
 		kv.Key_ = abs.Key()
 		kv.Value = *abs.ValueContent()
 		kv.Timestamp = encodedTime.Millisecs(abs.Received())

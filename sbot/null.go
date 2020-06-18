@@ -13,15 +13,15 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/indexes"
 	"go.cryptoscope.co/ssb/multilogs"
 	"go.cryptoscope.co/ssb/repo"
 )
 
 // NullFeed overwrites all the entries from ref in repo with zeros
-func (s *Sbot) NullFeed(ref *ssb.FeedRef) error {
+func (s *Sbot) NullFeed(ref *refs.FeedRef) error {
 	ctx := context.Background()
 
 	uf, ok := s.GetMultiLog(multilogs.IndexNameFeeds)

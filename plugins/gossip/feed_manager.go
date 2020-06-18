@@ -22,6 +22,7 @@ import (
 	"go.cryptoscope.co/ssb/internal/mutil"
 	"go.cryptoscope.co/ssb/internal/transform"
 	"go.cryptoscope.co/ssb/message"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 // FeedManager handles serving gossip about User Feeds.
@@ -76,7 +77,7 @@ func (m *FeedManager) pour(ctx context.Context, val interface{}, err error) erro
 		return err
 	}
 
-	author := val.(margaret.SeqWrapper).Value().(ssb.Message).Author()
+	author := val.(margaret.SeqWrapper).Value().(refs.Message).Author()
 	sink, ok := m.liveFeeds[author.Ref()]
 	if !ok {
 		return nil
@@ -235,10 +236,10 @@ func (m *FeedManager) CreateStreamHistory(
 	}
 
 	switch arg.ID.Algo {
-	case ssb.RefAlgoFeedSSB1:
+	case refs.RefAlgoFeedSSB1:
 		sink = transform.NewKeyValueWrapper(sink, arg.Keys)
 
-	case ssb.RefAlgoFeedGabby:
+	case refs.RefAlgoFeedGabby:
 		switch {
 		case arg.AsJSON:
 			sink = transform.NewKeyValueWrapper(sink, arg.Keys)

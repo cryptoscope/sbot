@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/sync/errgroup"
 
 	"go.cryptoscope.co/ssb"
@@ -82,7 +83,7 @@ func TestNullContentRequest(t *testing.T) {
 		{"arny", map[string]interface{}{"text": "i think you should be able to.."}},
 	}
 
-	var allMessages []ssb.MessageRef
+	var allMessages []refs.MessageRef
 	for idx, intro := range intros {
 		ref, err := mainbot.PublishAs(intro.as, intro.c)
 		r.NoError(err, "publish %d failed", idx)
@@ -141,7 +142,7 @@ func TestNullContentRequest(t *testing.T) {
 	bertLog = mutil.Indirect(mainbot.RootLog, bertLog)
 	msgv, err := bertLog.Get(margaret.BaseSeq(2)) // 0-indexed
 	r.NoError(err)
-	msg, ok := msgv.(ssb.Message)
+	msg, ok := msgv.(refs.Message)
 	r.True(ok, "not a msg! %T", msgv)
 
 	r.True(msg.Author().Equal(kpBert.Id), "wrong author")
@@ -149,11 +150,11 @@ func TestNullContentRequest(t *testing.T) {
 
 	type tcase struct {
 		seq    uint
-		msgkey ssb.MessageRef
+		msgkey refs.MessageRef
 
 		okay bool
 	}
-	fakeRef := ssb.MessageRef{}
+	fakeRef := refs.MessageRef{}
 	cases := []tcase{
 		{1, fakeRef, false},
 		{1, allMessages[0], false},
@@ -282,7 +283,7 @@ func TestNullContentAndSync(t *testing.T) {
 		msgv, err := mutil.Indirect(bot.RootLog, userLog).Get(margaret.BaseSeq(seq - 1)) // 0-indexed
 		r.NoError(err)
 
-		msg, ok := msgv.(ssb.Message)
+		msg, ok := msgv.(refs.Message)
 		r.True(ok, "not a msg! %T", msgv)
 
 		if isNulled {
@@ -387,7 +388,7 @@ func TestNullContentAndSync(t *testing.T) {
 		sw, ok := v.(margaret.SeqWrapper)
 		r.True(ok, "not a SW! %T", v)
 
-		msg, ok := sw.Value().(ssb.Message)
+		msg, ok := sw.Value().(refs.Message)
 		r.True(ok, "not a msg! %T", sw)
 
 		t.Log(sw.Seq().Seq(), string(msg.ContentBytes()))

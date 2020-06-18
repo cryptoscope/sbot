@@ -14,6 +14,7 @@ import (
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
 	gabbygrove "go.mindeco.de/ssb-gabbygrove"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message/multimsg"
@@ -55,7 +56,7 @@ func (pr Private) update(ctx context.Context, seq margaret.Seq, val interface{},
 		return nulled
 	}
 
-	msg, ok := val.(ssb.Message)
+	msg, ok := val.(refs.Message)
 	if !ok {
 		err := errors.Errorf("private/readidx: error casting message. got type %T", val)
 		return err
@@ -63,7 +64,7 @@ func (pr Private) update(ctx context.Context, seq margaret.Seq, val interface{},
 
 	var boxedContent []byte
 	switch msg.Author().Algo {
-	case ssb.RefAlgoFeedSSB1:
+	case refs.RefAlgoFeedSSB1:
 		input := msg.ContentBytes()
 		if !(input[0] == '"' && input[len(input)-1] == '"') {
 			return nil // not a json string
@@ -78,7 +79,7 @@ func (pr Private) update(ctx context.Context, seq margaret.Seq, val interface{},
 		}
 		boxedContent = boxedData[:n]
 
-	case ssb.RefAlgoFeedGabby:
+	case refs.RefAlgoFeedGabby:
 		mm, ok := val.(multimsg.MultiMessage)
 		if !ok {
 			mmPtr, ok := val.(*multimsg.MultiMessage)

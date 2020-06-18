@@ -10,14 +10,14 @@ import (
 
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/margaret"
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/crypto/nacl/auth"
 )
 
 type DeserializedMessage struct {
-	Previous  *ssb.MessageRef  `json:"previous"`
-	Author    ssb.FeedRef      `json:"author"`
+	Previous  *refs.MessageRef `json:"previous"`
+	Author    refs.FeedRef     `json:"author"`
 	Sequence  margaret.BaseSeq `json:"sequence"`
 	Timestamp float64          `json:"timestamp"`
 	Hash      string           `json:"hash"`
@@ -25,7 +25,7 @@ type DeserializedMessage struct {
 }
 
 type LegacyMessage struct {
-	Previous  *ssb.MessageRef  `json:"previous"`
+	Previous  *refs.MessageRef `json:"previous"`
 	Author    string           `json:"author"`
 	Sequence  margaret.BaseSeq `json:"sequence"`
 	Timestamp int64            `json:"timestamp"`
@@ -34,7 +34,7 @@ type LegacyMessage struct {
 }
 
 // Sign preserves the filed order (up to content)
-func (msg LegacyMessage) Sign(priv ed25519.PrivateKey, hmacSecret *[32]byte) (*ssb.MessageRef, []byte, error) {
+func (msg LegacyMessage) Sign(priv ed25519.PrivateKey, hmacSecret *[32]byte) (*refs.MessageRef, []byte, error) {
 	// flatten interface{} content value
 	pp, err := jsonAndPreserve(msg)
 	if err != nil {
@@ -66,9 +66,9 @@ func (msg LegacyMessage) Sign(priv ed25519.PrivateKey, hmacSecret *[32]byte) (*s
 	h := sha256.New()
 	io.Copy(h, bytes.NewReader(v8warp))
 
-	mr := &ssb.MessageRef{
+	mr := &refs.MessageRef{
 		Hash: h.Sum(nil),
-		Algo: ssb.RefAlgoMessageSSB1,
+		Algo: refs.RefAlgoMessageSSB1,
 	}
 	return mr, ppWithSig, nil
 }

@@ -12,12 +12,13 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/internal/extra25519"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/crypto/curve25519"
 	"golang.org/x/crypto/nacl/box"
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
-func Box(clearMsg []byte, rcpts ...*ssb.FeedRef) ([]byte, error) {
+func Box(clearMsg []byte, rcpts ...*refs.FeedRef) ([]byte, error) {
 	n := len(rcpts)
 	if n <= 0 || n > maxRecps {
 		return nil, errors.Errorf("encrypt pm: wrong number of recipients: %d", n)

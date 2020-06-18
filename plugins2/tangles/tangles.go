@@ -11,8 +11,8 @@ import (
 	"go.cryptoscope.co/librarian"
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/repo"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 func (plug *Plugin) MakeMultiLog(r repo.Interface) (multilog.MultiLog, librarian.SinkIndex, error) {
@@ -24,7 +24,7 @@ func (plug *Plugin) MakeMultiLog(r repo.Interface) (multilog.MultiLog, librarian
 			return nulled
 		}
 
-		msg, ok := msgv.(ssb.Message)
+		msg, ok := msgv.(refs.Message)
 		if !ok {
 			err := errors.Errorf("error casting message. got type %T", msgv)
 			fmt.Println("tangleIDX failed:", err)
@@ -32,7 +32,7 @@ func (plug *Plugin) MakeMultiLog(r repo.Interface) (multilog.MultiLog, librarian
 		}
 
 		var value struct {
-			Root *ssb.MessageRef
+			Root *refs.MessageRef
 		}
 
 		err := json.Unmarshal(msg.ContentBytes(), &value)

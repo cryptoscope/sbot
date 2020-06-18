@@ -19,6 +19,7 @@ import (
 	"go.cryptoscope.co/ssb/message/legacy"
 	"go.cryptoscope.co/ssb/plugins2"
 	"go.cryptoscope.co/ssb/plugins2/bytype"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/crypto/nacl/auth"
 
 	"go.cryptoscope.co/ssb"
@@ -115,7 +116,7 @@ func XTestPeerInviteJSCreate(t *testing.T) {
 	r.NoError(err)
 
 	// bob has the message
-	invRef, err := ssb.ParseMessageRef(invData[1])
+	invRef, err := refs.ParseMessageRef(invData[1])
 	r.NoError(err)
 	msg, err := bob.Get(*invRef)
 	r.NoError(err)
@@ -139,8 +140,8 @@ func XTestPeerInviteJSCreate(t *testing.T) {
 
 	// invite data matches
 	var invCore struct {
-		Invite *ssb.FeedRef `json:"invite"`
-		Host   *ssb.FeedRef `json:"host"`
+		Invite *refs.FeedRef `json:"invite"`
+		Host   *refs.FeedRef `json:"host"`
 	}
 	err = json.Unmarshal(invmsgWoSig, &invCore)
 	r.NoError(err)

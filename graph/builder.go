@@ -14,6 +14,7 @@ import (
 	"go.cryptoscope.co/librarian"
 	libbadger "go.cryptoscope.co/librarian/badger"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/path"
 	"gonum.org/v1/gonum/graph/simple"
@@ -28,13 +29,13 @@ type Builder interface {
 	Build() (*Graph, error)
 
 	// Follows returns a set of all people ref follows
-	Follows(*ssb.FeedRef) (*ssb.StrFeedSet, error)
+	Follows(*refs.FeedRef) (*ssb.StrFeedSet, error)
 
-	Hops(*ssb.FeedRef, int) *ssb.StrFeedSet
+	Hops(*refs.FeedRef, int) *ssb.StrFeedSet
 
-	Authorizer(from *ssb.FeedRef, maxHops int) ssb.Authorizer
+	Authorizer(from *refs.FeedRef, maxHops int) ssb.Authorizer
 
-	DeleteAuthor(who *ssb.FeedRef) error
+	DeleteAuthor(who *refs.FeedRef) error
 }
 
 type IndexingBuilder interface {
@@ -76,14 +77,14 @@ func (b *builder) indexUpdateFunc(ctx context.Context, seq margaret.Seq, val int
 		return nulled
 	}
 
-	abs, ok := val.(ssb.Message)
+	abs, ok := val.(refs.Message)
 	if !ok {
 		err := errors.Errorf("graph/idx: invalid msg value %T", val)
 		b.log.Log("msg", "contact eval failed", "reason", err)
 		return err
 	}
 
-	var c ssb.Contact
+	var c refs.Contact
 	err := c.UnmarshalJSON(abs.ContentBytes())
 	if err != nil {
 		// just ignore invalid messages, nothing to do with them (unless you are debugging something)
@@ -121,7 +122,7 @@ func (b *builder) OpenIndex() (librarian.SeqSetterIndex, librarian.SinkIndex) {
 	return b.idx, b.idxSink
 }
 
-func (b *builder) DeleteAuthor(who *ssb.FeedRef) error {
+func (b *builder) DeleteAuthor(who *refs.FeedRef) error {
 	b.cacheLock.Lock()
 	defer b.cacheLock.Unlock()
 	b.cachedGraph = nil
@@ -142,7 +143,7 @@ func (b *builder) DeleteAuthor(who *ssb.FeedRef) error {
 	})
 }
 
-func (b *builder) Authorizer(from *ssb.FeedRef, maxHops int) ssb.Authorizer {
+func (b *builder) Authorizer(from *refs.FeedRef, maxHops int) ssb.Authorizer {
 	return &authorizer{
 		b:       b,
 		from:    from,
@@ -180,7 +181,7 @@ func (b *builder) Build() (*Graph, error) {
 				continue
 			}
 
-			var to, from ssb.StorageRef
+			var to, from refs.StorageRef
 			if err := from.Unmarshal(rawFrom); err != nil {
 				return errors.Wrapf(err, "builder: couldnt idx key value (from)")
 			}
@@ -258,7 +259,7 @@ type Lookup struct {
 	lookup key2node
 }
 
-func (l Lookup) Dist(to *ssb.FeedRef) ([]graph.Node, float64) {
+func (l Lookup) Dist(to *refs.FeedRef) ([]graph.Node, float64) {
 	bto := to.StoredAddr()
 	nTo, has := l.lookup[bto]
 	if !has {
@@ -267,7 +268,7 @@ func (l Lookup) Dist(to *ssb.FeedRef) ([]graph.Node, float64) {
 	return l.dijk.To(nTo.ID())
 }
 
-func (b *builder) Follows(forRef *ssb.FeedRef) (*ssb.StrFeedSet, error) {
+func (b *builder) Follows(forRef *refs.FeedRef) (*ssb.StrFeedSet, error) {
 	if forRef == nil {
 		panic("nil feed ref")
 	}
@@ -285,7 +286,7 @@ func (b *builder) Follows(forRef *ssb.FeedRef) (*ssb.StrFeedSet, error) {
 				if len(v) >= 1 && v[0] == '1' {
 					// extract 2nd feed ref out of db key
 					// TODO: use compact StoredAddr
-					var sr ssb.StorageRef
+					var sr refs.StorageRef
 					err := sr.Unmarshal(k[33:])
 					if err != nil {
 						return errors.Wrapf(err, "follows(%s): invalid ref entry in db for feed", forRef.Ref())
@@ -309,7 +310,7 @@ func (b *builder) Follows(forRef *ssb.FeedRef) (*ssb.StrFeedSet, error) {
 // max == 0: only direct follows of from
 // max == 1: max:0 + follows of friends of from
 // max == 2: max:1 + follows of their friends
-func (b *builder) Hops(from *ssb.FeedRef, max int) *ssb.StrFeedSet {
+func (b *builder) Hops(from *refs.FeedRef, max int) *ssb.StrFeedSet {
 	max++
 	walked := ssb.NewFeedSet(0)
 	visited := make(map[string]struct{}) // tracks the nodes we already recursed from (so we don't do them multiple times on common friends)
@@ -322,7 +323,7 @@ func (b *builder) Hops(from *ssb.FeedRef, max int) *ssb.StrFeedSet {
 	return walked
 }
 
-func (b *builder) recurseHops(walked *ssb.StrFeedSet, vis map[string]struct{}, from *ssb.FeedRef, depth int) error {
+func (b *builder) recurseHops(walked *ssb.StrFeedSet, vis map[string]struct{}, from *refs.FeedRef, depth int) error {
 	if depth == 0 {
 		return nil
 	}

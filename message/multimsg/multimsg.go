@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/ugorji/go/codec"
 	gabbygrove "go.mindeco.de/ssb-gabbygrove"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message/legacy"
 )
 
@@ -25,9 +25,9 @@ const (
 // MultiMessage attempts to support multiple message formats in the same storage layer
 // currently supports Proto and legacy
 type MultiMessage struct {
-	ssb.Message
+	refs.Message
 	tipe MessageType
-	key  *ssb.MessageRef
+	key  *refs.MessageRef
 
 	// metadata
 	received time.Time

@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/repo"
 	"go.cryptoscope.co/ssb/sbot"
 )
@@ -40,19 +40,19 @@ func main() {
 
 	r := repo.New(os.Args[1])
 
-	var refs []*ssb.FeedRef
+	var refs []*refs.FeedRef
 	if os.Args[2] == "-" {
 		s := bufio.NewScanner(os.Stdin)
 		for s.Scan() {
 			line := s.Text()
-			fr, err := ssb.ParseFeedRef(line)
+			fr, err := refs.ParseFeedRef(line)
 			check(errors.Wrapf(err, "failed to parse %q argument", line))
 			refs = append(refs, fr)
 		}
 		check(errors.Wrap(s.Err(), "stdin scanner failed"))
 	} else {
 
-		fr, err := ssb.ParseFeedRef(os.Args[2])
+		fr, err := refs.ParseFeedRef(os.Args[2])
 		check(errors.Wrap(err, "failed to parse feed argument"))
 		refs = append(refs, fr)
 	}

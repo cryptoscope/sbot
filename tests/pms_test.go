@@ -11,8 +11,8 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/multilogs"
 	"go.cryptoscope.co/ssb/private"
 	"go.cryptoscope.co/ssb/repo"
@@ -135,7 +135,7 @@ func TestPrivMsgsFromGo(t *testing.T) {
 	r.NoError(err)
 	msg, err := s.RootLog.Get(seqMsg.(margaret.BaseSeq))
 	r.NoError(err)
-	storedMsg, ok := msg.(ssb.Message)
+	storedMsg, ok := msg.(refs.Message)
 	r.True(ok, "wrong type of message: %T", msg)
 	r.Equal(storedMsg.Seq(), margaret.BaseSeq(2).Seq())
 
@@ -202,7 +202,7 @@ func TestPrivMsgsFromJS(t *testing.T) {
 
 		msg, err := bob.RootLog.Get(seqMsg.(margaret.BaseSeq))
 		r.NoError(err)
-		absMsg, ok := msg.(ssb.Message)
+		absMsg, ok := msg.(refs.Message)
 		r.True(ok, "wrong type of message: %T", msg)
 		r.Equal(absMsg.Seq(), margaret.BaseSeq(i+1).Seq())
 
@@ -210,7 +210,7 @@ func TestPrivMsgsFromJS(t *testing.T) {
 			continue // skip contact
 		}
 		type testWrap struct {
-			Author  ssb.FeedRef
+			Author  refs.FeedRef
 			Content string
 		}
 		var m testWrap

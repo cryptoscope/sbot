@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc"
@@ -165,7 +166,7 @@ func TestWantManager(t *testing.T) {
 				var (
 					m   = make(map[string]int64)
 					h   = sha256.New()
-					ref = ssb.BlobRef{
+					ref = refs.BlobRef{
 						Algo: ssb.RefAlgoBlobSSB1,
 					}
 				)

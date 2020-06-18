@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/client"
@@ -83,7 +84,7 @@ func testPublishPerAlgo(algo string) func(t *testing.T) {
 		v, err := src.Next(context.TODO())
 		r.NoError(err, "failed to get msg")
 
-		savedMsg, ok := v.(ssb.Message)
+		savedMsg, ok := v.(refs.Message)
 		r.True(ok, "wrong type: %T", v)
 		r.Equal(savedMsg.Key().Ref(), ref.Ref())
 
@@ -109,7 +110,7 @@ func testPublishPerAlgo(algo string) func(t *testing.T) {
 		sw, ok := v.(margaret.SeqWrapper)
 		r.True(ok, "wrong type: %T", v)
 		wrappedVal := sw.Value()
-		savedMsg, ok = wrappedVal.(ssb.Message)
+		savedMsg, ok = wrappedVal.(refs.Message)
 		r.True(ok, "wrong type: %T", wrappedVal)
 		r.Equal(savedMsg.Key().Ref(), ref.Ref())
 

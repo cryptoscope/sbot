@@ -10,8 +10,8 @@ import (
 	"go.cryptoscope.co/librarian"
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/repo"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 func (plug *Plugin) MakeMultiLog(r repo.Interface) (multilog.MultiLog, librarian.SinkIndex, error) {
@@ -27,7 +27,7 @@ func IndexUpdate(ctx context.Context, seq margaret.Seq, msgv interface{}, mlog m
 		}
 		return nulled
 	}
-	msg, ok := msgv.(ssb.Message)
+	msg, ok := msgv.(refs.Message)
 	if !ok {
 		err := errors.Errorf("error casting message. got type %T", msgv)
 		return err

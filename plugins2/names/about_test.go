@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/luigi"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/client"
@@ -69,7 +70,7 @@ func TestAboutNames(t *testing.T) {
 		if luigi.IsEOS(err) {
 			break
 		}
-		sm := v.(ssb.Message)
+		sm := v.(refs.Message)
 		var a ssb.About
 		c := sm.ContentBytes()
 		err = json.Unmarshal(c, &a)

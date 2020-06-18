@@ -9,8 +9,8 @@ import (
 	"go.cryptoscope.co/librarian"
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/repo"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 const IndexNameFeeds = "userFeeds"
@@ -27,7 +27,7 @@ func UserFeedsUpdate(ctx context.Context, seq margaret.Seq, value interface{}, m
 		return nulled
 	}
 
-	abstractMsg, ok := value.(ssb.Message)
+	abstractMsg, ok := value.(refs.Message)
 	if !ok {
 		return errors.Errorf("error casting message. got type %T", value)
 	}

@@ -55,10 +55,10 @@ type FakeWantManager struct {
 	registerReturnsOnCall map[int]struct {
 		result1 func()
 	}
-	WantStub        func(*ssb.BlobRef) error
+	WantStub        func(*refs.BlobRef) error
 	wantMutex       sync.RWMutex
 	wantArgsForCall []struct {
-		arg1 *ssb.BlobRef
+		arg1 *refs.BlobRef
 	}
 	wantReturns struct {
 		result1 error
@@ -66,10 +66,10 @@ type FakeWantManager struct {
 	wantReturnsOnCall map[int]struct {
 		result1 error
 	}
-	WantWithDistStub        func(*ssb.BlobRef, int64) error
+	WantWithDistStub        func(*refs.BlobRef, int64) error
 	wantWithDistMutex       sync.RWMutex
 	wantWithDistArgsForCall []struct {
-		arg1 *ssb.BlobRef
+		arg1 *refs.BlobRef
 		arg2 int64
 	}
 	wantWithDistReturns struct {
@@ -78,10 +78,10 @@ type FakeWantManager struct {
 	wantWithDistReturnsOnCall map[int]struct {
 		result1 error
 	}
-	WantsStub        func(*ssb.BlobRef) bool
+	WantsStub        func(*refs.BlobRef) bool
 	wantsMutex       sync.RWMutex
 	wantsArgsForCall []struct {
-		arg1 *ssb.BlobRef
+		arg1 *refs.BlobRef
 	}
 	wantsReturns struct {
 		result1 bool
@@ -319,11 +319,11 @@ func (fake *FakeWantManager) RegisterReturnsOnCall(i int, result1 func()) {
 	}{result1}
 }
 
-func (fake *FakeWantManager) Want(arg1 *ssb.BlobRef) error {
+func (fake *FakeWantManager) Want(arg1 *refs.BlobRef) error {
 	fake.wantMutex.Lock()
 	ret, specificReturn := fake.wantReturnsOnCall[len(fake.wantArgsForCall)]
 	fake.wantArgsForCall = append(fake.wantArgsForCall, struct {
-		arg1 *ssb.BlobRef
+		arg1 *refs.BlobRef
 	}{arg1})
 	fake.recordInvocation("Want", []interface{}{arg1})
 	fake.wantMutex.Unlock()
@@ -343,13 +343,13 @@ func (fake *FakeWantManager) WantCallCount() int {
 	return len(fake.wantArgsForCall)
 }
 
-func (fake *FakeWantManager) WantCalls(stub func(*ssb.BlobRef) error) {
+func (fake *FakeWantManager) WantCalls(stub func(*refs.BlobRef) error) {
 	fake.wantMutex.Lock()
 	defer fake.wantMutex.Unlock()
 	fake.WantStub = stub
 }
 
-func (fake *FakeWantManager) WantArgsForCall(i int) *ssb.BlobRef {
+func (fake *FakeWantManager) WantArgsForCall(i int) *refs.BlobRef {
 	fake.wantMutex.RLock()
 	defer fake.wantMutex.RUnlock()
 	argsForCall := fake.wantArgsForCall[i]
@@ -379,11 +379,11 @@ func (fake *FakeWantManager) WantReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeWantManager) WantWithDist(arg1 *ssb.BlobRef, arg2 int64) error {
+func (fake *FakeWantManager) WantWithDist(arg1 *refs.BlobRef, arg2 int64) error {
 	fake.wantWithDistMutex.Lock()
 	ret, specificReturn := fake.wantWithDistReturnsOnCall[len(fake.wantWithDistArgsForCall)]
 	fake.wantWithDistArgsForCall = append(fake.wantWithDistArgsForCall, struct {
-		arg1 *ssb.BlobRef
+		arg1 *refs.BlobRef
 		arg2 int64
 	}{arg1, arg2})
 	fake.recordInvocation("WantWithDist", []interface{}{arg1, arg2})
@@ -404,13 +404,13 @@ func (fake *FakeWantManager) WantWithDistCallCount() int {
 	return len(fake.wantWithDistArgsForCall)
 }
 
-func (fake *FakeWantManager) WantWithDistCalls(stub func(*ssb.BlobRef, int64) error) {
+func (fake *FakeWantManager) WantWithDistCalls(stub func(*refs.BlobRef, int64) error) {
 	fake.wantWithDistMutex.Lock()
 	defer fake.wantWithDistMutex.Unlock()
 	fake.WantWithDistStub = stub
 }
 
-func (fake *FakeWantManager) WantWithDistArgsForCall(i int) (*ssb.BlobRef, int64) {
+func (fake *FakeWantManager) WantWithDistArgsForCall(i int) (*refs.BlobRef, int64) {
 	fake.wantWithDistMutex.RLock()
 	defer fake.wantWithDistMutex.RUnlock()
 	argsForCall := fake.wantWithDistArgsForCall[i]
@@ -440,11 +440,11 @@ func (fake *FakeWantManager) WantWithDistReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeWantManager) Wants(arg1 *ssb.BlobRef) bool {
+func (fake *FakeWantManager) Wants(arg1 *refs.BlobRef) bool {
 	fake.wantsMutex.Lock()
 	ret, specificReturn := fake.wantsReturnsOnCall[len(fake.wantsArgsForCall)]
 	fake.wantsArgsForCall = append(fake.wantsArgsForCall, struct {
-		arg1 *ssb.BlobRef
+		arg1 *refs.BlobRef
 	}{arg1})
 	fake.recordInvocation("Wants", []interface{}{arg1})
 	fake.wantsMutex.Unlock()
@@ -464,13 +464,13 @@ func (fake *FakeWantManager) WantsCallCount() int {
 	return len(fake.wantsArgsForCall)
 }
 
-func (fake *FakeWantManager) WantsCalls(stub func(*ssb.BlobRef) bool) {
+func (fake *FakeWantManager) WantsCalls(stub func(*refs.BlobRef) bool) {
 	fake.wantsMutex.Lock()
 	defer fake.wantsMutex.Unlock()
 	fake.WantsStub = stub
 }
 
-func (fake *FakeWantManager) WantsArgsForCall(i int) *ssb.BlobRef {
+func (fake *FakeWantManager) WantsArgsForCall(i int) *refs.BlobRef {
 	fake.wantsMutex.RLock()
 	defer fake.wantsMutex.RUnlock()
 	argsForCall := fake.wantsArgsForCall[i]

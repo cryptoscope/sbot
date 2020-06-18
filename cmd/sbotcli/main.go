@@ -31,6 +31,7 @@ import (
 	"go.cryptoscope.co/ssb"
 	ssbClient "go.cryptoscope.co/ssb/client"
 	"go.cryptoscope.co/ssb/message"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/crypto/ed25519"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -184,10 +185,10 @@ func newClient(ctx *cli.Context) (*ssbClient.Client, error) {
 }
 
 func getStreamArgs(ctx *cli.Context) message.CreateHistArgs {
-	var ref *ssb.FeedRef
+	var ref *refs.FeedRef
 	if id := ctx.String("id"); id != "" {
 		var err error
-		ref, err = ssb.ParseFeedRef(id)
+		ref, err = refs.ParseFeedRef(id)
 		if err != nil {
 			panic(err)
 		}
@@ -293,11 +294,11 @@ var blockCmd = &cli.Command{
 			return err
 		}
 
-		var blocked = make(map[*ssb.FeedRef]bool)
+		var blocked = make(map[*refs.FeedRef]bool)
 
 		sc := bufio.NewScanner(os.Stdin)
 		for sc.Scan() {
-			fr, err := ssb.ParseFeedRef(sc.Text())
+			fr, err := refs.ParseFeedRef(sc.Text())
 			if err != nil {
 				return err
 			}

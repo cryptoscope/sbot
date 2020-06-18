@@ -9,11 +9,12 @@ import (
 	"time"
 
 	"go.cryptoscope.co/muxrpc"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 // EndpointStat gives some information about a connected peer
 type EndpointStat struct {
-	ID       *FeedRef
+	ID       *refs.FeedRef
 	Addr     net.Addr
 	Since    time.Duration
 	Endpoint muxrpc.Endpoint
@@ -25,7 +26,7 @@ type Network interface {
 	GetListenAddr() net.Addr
 
 	GetAllEndpoints() []EndpointStat
-	GetEndpointFor(*FeedRef) (muxrpc.Endpoint, bool)
+	GetEndpointFor(*refs.FeedRef) (muxrpc.Endpoint, bool)
 
 	GetConnTracker() ConnTracker
 

@@ -8,8 +8,7 @@ import (
 	"github.com/cryptix/go/logging"
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/muxrpc"
-
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type hImagesFor struct {
@@ -61,7 +60,7 @@ func checkAndLog(log logging.Interface, err error) {
 	}
 }
 
-func parseFeedRefFromArgs(req *muxrpc.Request) (*ssb.FeedRef, error) {
+func parseFeedRefFromArgs(req *muxrpc.Request) (*refs.FeedRef, error) {
 	args := req.Args()
 	if len(args) != 1 {
 		return nil, errors.Errorf("not enough args")
@@ -75,7 +74,7 @@ func parseFeedRefFromArgs(req *muxrpc.Request) (*ssb.FeedRef, error) {
 		refStr, _ = arg["id"].(string)
 	}
 
-	ref, err := ssb.ParseFeedRef(refStr)
+	ref, err := refs.ParseFeedRef(refStr)
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing feed reference")
 	}

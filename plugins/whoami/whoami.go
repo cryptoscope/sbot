@@ -9,6 +9,7 @@ import (
 	"github.com/cryptix/go/logging"
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/muxrpc"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 )
@@ -26,7 +27,7 @@ func checkAndLog(log logging.Interface, err error) {
 	}
 }
 
-func New(log logging.Interface, id *ssb.FeedRef) ssb.Plugin {
+func New(log logging.Interface, id *refs.FeedRef) ssb.Plugin {
 	return plugin{handler{
 		log: log,
 		id:  id,
@@ -49,7 +50,7 @@ func (plugin) WrapEndpoint(edp muxrpc.Endpoint) interface{} {
 
 type handler struct {
 	log logging.Interface
-	id  *ssb.FeedRef
+	id  *refs.FeedRef
 }
 
 func (handler) HandleConnect(ctx context.Context, edp muxrpc.Endpoint) {}
@@ -75,16 +76,16 @@ type endpoint struct {
 	edp muxrpc.Endpoint
 }
 
-func (edp endpoint) WhoAmI(ctx context.Context) (ssb.FeedRef, error) {
+func (edp endpoint) WhoAmI(ctx context.Context) (refs.FeedRef, error) {
 	type respType struct {
-		ID ssb.FeedRef `json:"id"`
+		ID refs.FeedRef `json:"id"`
 	}
 
 	var tResp respType
 
 	resp, err := edp.edp.Async(ctx, tResp, method)
 	if err != nil {
-		return ssb.FeedRef{}, errors.Wrap(err, "error making async call")
+		return refs.FeedRef{}, errors.Wrap(err, "error making async call")
 	}
 
 	return resp.(respType).ID, nil

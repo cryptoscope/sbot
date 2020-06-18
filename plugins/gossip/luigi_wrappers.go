@@ -8,8 +8,8 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc/codec"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message/multimsg"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 func gabbyStreamSink(stream luigi.Sink) luigi.Sink {
@@ -43,9 +43,9 @@ func asJSONsink(stream luigi.Sink) luigi.Sink {
 			}
 			return err
 		}
-		msg, ok := val.(ssb.Message)
+		msg, ok := val.(refs.Message)
 		if !ok {
-			return errors.Errorf("asJSONsink: expected ssb.Message - got %T", val)
+			return errors.Errorf("asJSONsink: expected refs.Message - got %T", val)
 		}
 		return stream.Pour(ctx, msg.ValueContentJSON())
 	})

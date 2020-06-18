@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/netwrap"
 	"go.cryptoscope.co/secretstream"
@@ -17,7 +18,7 @@ import (
 func TestParseParseLegacyToken(t *testing.T) {
 	a := assert.New(t)
 
-	testRef := ssb.FeedRef{
+	testRef := refs.FeedRef{
 		ID:   bytes.Repeat([]byte("b00p"), 8),
 		Algo: ssb.RefAlgoFeedSSB1,
 	}

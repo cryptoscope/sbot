@@ -8,6 +8,7 @@ import (
 
 	"github.com/cryptix/go/logging"
 	"github.com/pkg/errors"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/muxrpc"
 	"go.cryptoscope.co/ssb"
@@ -37,7 +38,7 @@ func (h hasHandler) HandleCall(ctx context.Context, req *muxrpc.Request, edp mux
 	switch v := req.Args()[0].(type) {
 	case string:
 
-		ref, err := ssb.ParseBlobRef(v)
+		ref, err := refs.ParseBlobRef(v)
 		if err != nil {
 			req.Stream.CloseWithError(errors.Wrap(err, "error parsing blob reference"))
 			return
@@ -69,7 +70,7 @@ func (h hasHandler) HandleCall(ctx context.Context, req *muxrpc.Request, edp mux
 				req.Stream.CloseWithError(fmt.Errorf("bad request - unhandled type"))
 				return
 			}
-			ref, err := ssb.ParseBlobRef(blobStr)
+			ref, err := refs.ParseBlobRef(blobStr)
 			checkAndLog(h.log, errors.Wrap(err, "error parsing blob reference"))
 			if err != nil {
 				return

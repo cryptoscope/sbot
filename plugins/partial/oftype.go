@@ -9,7 +9,7 @@ import (
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog/roaring"
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type getMessagesOfTypeHandler struct {
@@ -24,7 +24,7 @@ func (h getMessagesOfTypeHandler) HandleSource(ctx context.Context, req *muxrpc.
 		return errors.Errorf("invalid arguments")
 	}
 	var (
-		feed *ssb.FeedRef
+		feed *refs.FeedRef
 		tipe string
 
 		err error
@@ -36,7 +36,7 @@ func (h getMessagesOfTypeHandler) HandleSource(ctx context.Context, req *muxrpc.
 		if !ok {
 			return errors.Errorf("invalid argument - missing 'id' in map")
 		}
-		feed, err = ssb.ParseFeedRef(refV.(string))
+		feed, err = refs.ParseFeedRef(refV.(string))
 		if err != nil {
 			return errors.Errorf("invalid argument: %w", err)
 		}
@@ -78,7 +78,7 @@ func (h getMessagesOfTypeHandler) HandleSource(ctx context.Context, req *muxrpc.
 			break
 		}
 
-		msg, ok := msgv.(ssb.Message)
+		msg, ok := msgv.(refs.Message)
 		if !ok {
 			return errors.Errorf("invalid argument type %T", msgv)
 		}

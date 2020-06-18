@@ -11,6 +11,7 @@ import (
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/muxrpc"
 	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type plugin struct {
@@ -49,7 +50,7 @@ func (h handler) HandleCall(ctx context.Context, req *muxrpc.Request, edp muxrpc
 	}
 	var (
 		input  string
-		parsed *ssb.MessageRef
+		parsed *refs.MessageRef
 		err    error
 	)
 	switch v := req.Args()[0].(type) {
@@ -68,7 +69,7 @@ func (h handler) HandleCall(ctx context.Context, req *muxrpc.Request, edp muxrpc
 		return
 	}
 
-	parsed, err = ssb.ParseMessageRef(input)
+	parsed, err = refs.ParseMessageRef(input)
 	if err != nil {
 		req.CloseWithError(errors.Wrap(err, "failed to parse arguments"))
 		return
@@ -80,7 +81,7 @@ func (h handler) HandleCall(ctx context.Context, req *muxrpc.Request, edp muxrpc
 		return
 	}
 
-	var kv ssb.KeyValueRaw
+	var kv refs.KeyValueRaw
 	kv.Key_ = msg.Key()
 	kv.Value = *msg.ValueContent()
 

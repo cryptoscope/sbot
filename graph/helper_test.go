@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
@@ -38,7 +39,7 @@ func newPublisherWithKP(t *testing.T, root margaret.Log, users multilog.MultiLog
 	return p
 }
 
-func (p publisher) follow(ref *ssb.FeedRef) {
+func (p publisher) follow(ref *refs.FeedRef) {
 	newSeq, err := p.publish.Append(map[string]interface{}{
 		"type":      "contact",
 		"contact":   ref.Ref(),
@@ -48,7 +49,7 @@ func (p publisher) follow(ref *ssb.FeedRef) {
 	p.r.NotNil(newSeq)
 }
 
-func (p publisher) unfollow(ref *ssb.FeedRef) {
+func (p publisher) unfollow(ref *refs.FeedRef) {
 	newSeq, err := p.publish.Append(map[string]interface{}{
 		"type":      "contact",
 		"contact":   ref.Ref(),
@@ -58,7 +59,7 @@ func (p publisher) unfollow(ref *ssb.FeedRef) {
 	p.r.NotNil(newSeq)
 }
 
-func (p publisher) unblock(ref *ssb.FeedRef) {
+func (p publisher) unblock(ref *refs.FeedRef) {
 	newSeq, err := p.publish.Append(map[string]interface{}{
 		"type":     "contact",
 		"contact":  ref.Ref(),
@@ -68,7 +69,7 @@ func (p publisher) unblock(ref *ssb.FeedRef) {
 	p.r.NotNil(newSeq)
 }
 
-func (p publisher) block(ref *ssb.FeedRef) {
+func (p publisher) block(ref *refs.FeedRef) {
 	newSeq, err := p.publish.Append(map[string]interface{}{
 		"type":     "contact",
 		"contact":  ref.Ref(),

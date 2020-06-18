@@ -10,6 +10,7 @@ import (
 	"go.cryptoscope.co/librarian"
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/internal/mutil"
@@ -20,8 +21,8 @@ import (
 
 // NullContent drops the content portion of a gabbygrove transfer.
 // seq is in the same base ase the feed (starting with 1).
-func (s *Sbot) NullContent(fr *ssb.FeedRef, seq uint) error {
-	if fr.Algo != ssb.RefAlgoFeedGabby {
+func (s *Sbot) NullContent(fr *refs.FeedRef, seq uint) error {
+	if fr.Algo != refs.RefAlgoFeedGabby {
 		return ssb.ErrUnuspportedFormat
 	}
 
@@ -86,8 +87,8 @@ type dropContentTrigger struct {
 }
 
 type triggerEvent struct {
-	author *ssb.FeedRef
-	dcr    *ssb.DropContentRequest
+	author *refs.FeedRef
+	dcr    *refs.DropContentRequest
 }
 
 func (cdr *dropContentTrigger) consume() {
@@ -150,19 +151,19 @@ func (dcr *dropContentTrigger) idxupdate(idx librarian.SeqSetterIndex) librarian
 			return nulled
 		}
 
-		msg, ok := val.(ssb.Message)
+		msg, ok := val.(refs.Message)
 		if !ok {
 			return errors.Errorf("index/dcrTigger: unexpected message type: %T", val)
 		}
 
 		author := msg.Author()
-		if author.Algo != ssb.RefAlgoFeedGabby {
+		if author.Algo != refs.RefAlgoFeedGabby {
 			return nil
 		}
 
-		var typed ssb.DropContentRequest
+		var typed refs.DropContentRequest
 		err := json.Unmarshal(msg.ContentBytes(), &typed)
-		if err == nil && typed.Type == ssb.DropContentRequestType {
+		if err == nil && typed.Type == refs.DropContentRequestType {
 			dcr.check <- &triggerEvent{
 				author: author,
 				dcr:    &typed,

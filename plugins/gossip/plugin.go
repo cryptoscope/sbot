@@ -13,6 +13,7 @@ import (
 	"go.cryptoscope.co/margaret/multilog"
 	"go.cryptoscope.co/muxrpc"
 	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type HMACSecret *[32]byte
@@ -24,7 +25,7 @@ type Promisc bool
 func New(
 	ctx context.Context,
 	log logging.Interface,
-	id *ssb.FeedRef,
+	id *refs.FeedRef,
 	rootLog margaret.Log,
 	userFeeds multilog.MultiLog,
 	fm *FeedManager,
@@ -72,7 +73,7 @@ func New(
 func NewHist(
 	ctx context.Context,
 	log logging.Interface,
-	id *ssb.FeedRef,
+	id *refs.FeedRef,
 	rootLog margaret.Log,
 	userFeeds multilog.MultiLog,
 	wantList ssb.ReplicationLister,

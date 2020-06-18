@@ -8,6 +8,7 @@ import (
 
 	"github.com/cryptix/go/logging"
 	"github.com/pkg/errors"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/muxrpc"
 
@@ -34,13 +35,13 @@ func (h rmHandler) HandleCall(ctx context.Context, req *muxrpc.Request, edp muxr
 		return
 	}
 
-	ref, err := ssb.ParseRef(req.Args()[0].(string))
+	ref, err := refs.ParseRef(req.Args()[0].(string))
 	checkAndLog(h.log, errors.Wrap(err, "error parsing blob reference"))
 	if err != nil {
 		return
 	}
 
-	br, ok := ref.(*ssb.BlobRef)
+	br, ok := ref.(*refs.BlobRef)
 	if !ok {
 		err = errors.Errorf("expected blob reference, got %T", ref)
 		checkAndLog(h.log, err)

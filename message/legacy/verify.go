@@ -9,7 +9,7 @@ import (
 	"io"
 
 	"github.com/pkg/errors"
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 	"golang.org/x/crypto/nacl/auth"
 )
 
@@ -31,7 +31,7 @@ func ExtractSignature(b []byte) ([]byte, Signature, error) {
 // If hmacSecret is non nil, it uses that as the Key for NACL crypto_auth() and verifies the signature against the hash of the message.
 // At last it uses internalV8Binary to create a the SHA256 hash for the message key.
 // If you find a buggy message, use `node ./encode_test.js $feedID` to generate a new testdata.zip
-func Verify(raw []byte, hmacSecret *[32]byte) (*ssb.MessageRef, *DeserializedMessage, error) {
+func Verify(raw []byte, hmacSecret *[32]byte) (*refs.MessageRef, *DeserializedMessage, error) {
 	enc, err := EncodePreserveOrder(raw)
 	if err != nil {
 		if len(raw) > 15 {
@@ -71,9 +71,9 @@ func Verify(raw []byte, hmacSecret *[32]byte) (*ssb.MessageRef, *DeserializedMes
 	h := sha256.New()
 	io.Copy(h, bytes.NewReader(v8warp))
 
-	mr := ssb.MessageRef{
+	mr := refs.MessageRef{
 		Hash: h.Sum(nil),
-		Algo: ssb.RefAlgoMessageSSB1,
+		Algo: refs.RefAlgoMessageSSB1,
 	}
 	return &mr, &dmsg, nil
 }

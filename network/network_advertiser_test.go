@@ -9,11 +9,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 func makeTestPubKey(t *testing.T) *ssb.KeyPair {
 	var kp ssb.KeyPair
-	fr, err := ssb.ParseFeedRef("@LtQ3tOuLoeQFi5s/ic7U6wDBxWS3t2yxauc4/AwqfWc=.ed25519")
+	fr, err := refs.ParseFeedRef("@LtQ3tOuLoeQFi5s/ic7U6wDBxWS3t2yxauc4/AwqfWc=.ed25519")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	refs "go.mindeco.de/ssb-refs"
 
 	"github.com/cryptix/go/logging"
 	"github.com/pkg/errors"
@@ -36,10 +37,10 @@ func (h getHandler) HandleCall(ctx context.Context, req *muxrpc.Request, edp mux
 		req.Type = "source"
 	}
 
-	var wantedRef *ssb.BlobRef
+	var wantedRef *refs.BlobRef
 	var maxSize uint = blobstore.DefaultMaxSize
 
-	var justTheRef []ssb.BlobRef
+	var justTheRef []refs.BlobRef
 	if err := json.Unmarshal(req.RawArgs, &justTheRef); err != nil {
 		var withSize []blobstore.GetWithSize
 		if err := json.Unmarshal(req.RawArgs, &withSize); err != nil {

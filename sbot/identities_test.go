@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/indexes"
@@ -73,7 +74,7 @@ func TestMultipleIdentities(t *testing.T) {
 	r.NoError(err)
 
 	// boxing helper
-	box := func(v interface{}, recpts ...*ssb.FeedRef) []byte {
+	box := func(v interface{}, recpts ...*refs.FeedRef) []byte {
 		msg, err := json.Marshal(v)
 		r.NoError(err, "failed to marshal privmsg")
 		ciph, err := private.Box(msg, recpts...)
@@ -131,7 +132,7 @@ func TestMultipleIdentities(t *testing.T) {
 			break
 		}
 		r.NoError(err)
-		msg, ok := v.(ssb.Message)
+		msg, ok := v.(refs.Message)
 		r.True(ok, "wrong type: %T", v)
 		r.NotNil(msg)
 

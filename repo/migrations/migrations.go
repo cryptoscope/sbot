@@ -15,7 +15,7 @@ import (
 
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 
 	"github.com/cryptix/go/logging"
 	"github.com/pkg/errors"
@@ -141,7 +141,7 @@ func checkIfVersion0(r repo.Interface, log logging.Interface) (margaret.Log, err
 	return from, nil
 }
 
-func copyOffset(log logging.Interface, from, to margaret.Log) ([]ssb.MessageRef, error) {
+func copyOffset(log logging.Interface, from, to margaret.Log) ([]refs.MessageRef, error) {
 
 	sv, err := from.Seq().Value()
 	if err != nil {
@@ -160,7 +160,7 @@ func copyOffset(log logging.Interface, from, to margaret.Log) ([]ssb.MessageRef,
 	took := time.Now()
 	onePercent := fromSeq.Seq() / 10
 
-	var got []ssb.MessageRef
+	var got []refs.MessageRef
 	track := luigi.FuncSink(func(ctx context.Context, v interface{}, err error) error {
 		if luigi.IsEOS(err) { // || margaret.IsErrNulled(err)
 			return nil
@@ -192,7 +192,7 @@ func copyOffset(log logging.Interface, from, to margaret.Log) ([]ssb.MessageRef,
 	return got, nil
 }
 
-func validateNewLog(log logging.Interface, got []ssb.MessageRef, to margaret.Log) error {
+func validateNewLog(log logging.Interface, got []refs.MessageRef, to margaret.Log) error {
 	toSeq, err := to.Seq().Value()
 	if err != nil {
 		return err
@@ -216,7 +216,7 @@ func validateNewLog(log logging.Interface, got []ssb.MessageRef, to margaret.Log
 			return err
 		}
 
-		msg := v.(ssb.Message)
+		msg := v.(refs.Message)
 
 		if !bytes.Equal(got[i].Hash, msg.Key().Hash) {
 			return fmt.Errorf("migrate failed - msg%d diverges", i)

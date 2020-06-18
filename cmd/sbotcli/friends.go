@@ -6,8 +6,8 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/plugins/friends"
+	refs "go.mindeco.de/ssb-refs"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -38,19 +38,19 @@ var friendsIsFollowingCmd = &cli.Command{
 			return err
 		}
 
-		srcRef, err := ssb.ParseFeedRef(src)
+		srcRef, err := refs.ParseFeedRef(src)
 		if err != nil {
 			return err
 		}
 
-		dstRef, err := ssb.ParseFeedRef(dst)
+		dstRef, err := refs.ParseFeedRef(dst)
 		if err != nil {
 			return err
 		}
 
 		var arg = struct {
-			Source *ssb.FeedRef `json:"source"`
-			Dest   *ssb.FeedRef `json:"dest"`
+			Source *refs.FeedRef `json:"source"`
+			Dest   *refs.FeedRef `json:"dest"`
 		}{Source: srcRef, Dest: dstRef}
 
 		resp, err := client.Async(longctx, false, muxrpc.Method{"friends", "isFollowing"}, arg)
@@ -81,7 +81,7 @@ var friendsHopsCmd = &cli.Command{
 
 		if who := ctx.Args().Get(0); who != "" {
 			var err error
-			arg.Start, err = ssb.ParseFeedRef(who)
+			arg.Start, err = refs.ParseFeedRef(who)
 			if err != nil {
 				return err
 			}
@@ -92,7 +92,7 @@ var friendsHopsCmd = &cli.Command{
 			return err
 		}
 
-		src, err := client.Source(longctx, ssb.FeedRef{}, muxrpc.Method{"friends", "hops"}, arg)
+		src, err := client.Source(longctx, refs.FeedRef{}, muxrpc.Method{"friends", "hops"}, arg)
 		if err != nil {
 			return err
 		}
@@ -121,7 +121,7 @@ var friendsBlocksCmd = &cli.Command{
 			return err
 		}
 
-		src, err := client.Source(longctx, ssb.FeedRef{}, muxrpc.Method{"friends", "blocks"}, args...)
+		src, err := client.Source(longctx, refs.FeedRef{}, muxrpc.Method{"friends", "blocks"}, args...)
 		if err != nil {
 			return err
 		}

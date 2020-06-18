@@ -12,6 +12,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/ssb"
@@ -121,7 +122,7 @@ func TestStore(t *testing.T) {
 
 			bs.Changes().Register(changesSink)
 
-			refs := make(map[string]*ssb.BlobRef)
+			refs := make(map[string]*refs.BlobRef)
 
 			for _, refStr := range tc.putRefs {
 				ref, err := bs.Put(strings.NewReader(tc.blobs[refStr]))
@@ -160,7 +161,7 @@ func TestStore(t *testing.T) {
 					r.NoError(err, "error calling Next on list source")
 				}
 
-				ref, ok := v.(*ssb.BlobRef)
+				ref, ok := v.(*refs.BlobRef)
 				r.Equal(true, ok, "got something that is not a blobref in list: %v(%T)", v, v)
 
 				_, ok = listExp[ref.Ref()]

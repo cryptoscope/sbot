@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/multilogs"
@@ -90,7 +91,7 @@ func TestSignMessages(t *testing.T) {
 		r.NoError(err)
 		storedV, err := rl.Get(rootSeq.(margaret.Seq))
 		r.NoError(err)
-		storedMsg, ok := storedV.(ssb.Message)
+		storedMsg, ok := storedV.(refs.Message)
 		r.True(ok)
 		t.Logf("msg:%d\n%s", i, storedMsg.ContentBytes())
 		a.NotNil(storedMsg.Key(), "msg:%d - key", i)

@@ -14,25 +14,26 @@ import (
 	"github.com/keks/nocomment"
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/secretstream/secrethandshake"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type KeyPair struct {
-	Id   *FeedRef
+	Id   *refs.FeedRef
 	Pair secrethandshake.EdKeyPair
 }
 
 // the format of the .ssb/secret file as defined by the js implementations
 type ssbSecret struct {
-	Curve   string   `json:"curve"`
-	ID      *FeedRef `json:"id"`
-	Private string   `json:"private"`
-	Public  string   `json:"public"`
+	Curve   string        `json:"curve"`
+	ID      *refs.FeedRef `json:"id"`
+	Private string        `json:"private"`
+	Public  string        `json:"public"`
 }
 
 // IsValidFeedFormat checks if the passed FeedRef is for one of the two supported formats,
 // legacy/crapp or GabbyGrove.
-func IsValidFeedFormat(r *FeedRef) error {
-	if r.Algo != RefAlgoFeedSSB1 && r.Algo != RefAlgoFeedGabby {
+func IsValidFeedFormat(r *refs.FeedRef) error {
+	if r.Algo != refs.RefAlgoFeedSSB1 && r.Algo != refs.RefAlgoFeedGabby {
 		return errors.Errorf("ssb: unsupported feed format:%s", r.Algo)
 	}
 	return nil
@@ -49,7 +50,7 @@ func NewKeyPair(r io.Reader) (*KeyPair, error) {
 	}
 
 	keyPair := KeyPair{
-		Id:   &FeedRef{ID: kp.Public[:], Algo: "ed25519"},
+		Id:   &refs.FeedRef{ID: kp.Public[:], Algo: refs.RefAlgoFeedSSB1},
 		Pair: *kp,
 	}
 	return &keyPair, nil

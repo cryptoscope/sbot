@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/ssb"
@@ -24,13 +25,13 @@ var (
 	ErrNoSuchBlob = stderr.New("no such blob")
 )
 
-func parseBlobRef(refStr string) (*ssb.BlobRef, error) {
-	ref, err := ssb.ParseRef(refStr)
+func parseBlobRef(refStr string) (*refs.BlobRef, error) {
+	ref, err := refs.ParseRef(refStr)
 	if err != nil {
 		return nil, err
 	}
 
-	br, ok := ref.(*ssb.BlobRef)
+	br, ok := ref.(*refs.BlobRef)
 
 	if !ok {
 		return nil, fmt.Errorf("ref is not a %T but a %T", br, ref)
@@ -66,7 +67,7 @@ type blobStore struct {
 	bcast luigi.Broadcast
 }
 
-func (store *blobStore) getPath(ref *ssb.BlobRef) (string, error) {
+func (store *blobStore) getPath(ref *refs.BlobRef) (string, error) {
 	if err := ref.IsValid(); err != nil {
 		return "", errors.Wrap(err, "blobs: invalid reference")
 	}
@@ -77,7 +78,7 @@ func (store *blobStore) getPath(ref *ssb.BlobRef) (string, error) {
 	return filepath.Join(store.basePath, relPath), nil
 }
 
-func (store *blobStore) getHexDirPath(ref *ssb.BlobRef) (string, error) {
+func (store *blobStore) getHexDirPath(ref *refs.BlobRef) (string, error) {
 	if err := ref.IsValid(); err != nil {
 		return "", errors.Wrap(err, "blobs: invalid reference")
 	}
@@ -92,7 +93,7 @@ func (store *blobStore) getTmpPath() string {
 	return filepath.Join(store.basePath, "tmp", fmt.Sprint(time.Now().UnixNano()))
 }
 
-func (store *blobStore) Get(ref *ssb.BlobRef) (io.Reader, error) {
+func (store *blobStore) Get(ref *refs.BlobRef) (io.Reader, error) {
 	blobPath, err := store.getPath(ref)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error getting path for ref %q", ref)
@@ -109,7 +110,7 @@ func (store *blobStore) Get(ref *ssb.BlobRef) (io.Reader, error) {
 	return f, nil
 }
 
-func (store *blobStore) Put(blob io.Reader) (*ssb.BlobRef, error) {
+func (store *blobStore) Put(blob io.Reader) (*refs.BlobRef, error) {
 	tmpPath := store.getTmpPath()
 	f, err := os.Create(tmpPath)
 	if err != nil {
@@ -122,7 +123,7 @@ func (store *blobStore) Put(blob io.Reader) (*ssb.BlobRef, error) {
 		return nil, errors.Wrap(err, "blobstore.Put: error copying")
 	}
 
-	ref := &ssb.BlobRef{
+	ref := &refs.BlobRef{
 		Hash: h.Sum(nil),
 		Algo: "sha256",
 	}
@@ -169,7 +170,7 @@ func (store *blobStore) Put(blob io.Reader) (*ssb.BlobRef, error) {
 	return ref, errors.Wrap(err, "blobstore.Put: error in notification handler")
 }
 
-func (store *blobStore) Delete(ref *ssb.BlobRef) error {
+func (store *blobStore) Delete(ref *refs.BlobRef) error {
 	p, err := store.getPath(ref)
 	if err != nil {
 		return errors.Wrap(err, "error getting blob path")
@@ -197,7 +198,7 @@ func (store *blobStore) List() luigi.Source {
 	}
 }
 
-func (store *blobStore) Size(ref *ssb.BlobRef) (int64, error) {
+func (store *blobStore) Size(ref *refs.BlobRef) (int64, error) {
 	blobPath, err := store.getPath(ref)
 	if err != nil {
 		return 0, errors.Wrapf(err, "error getting path")

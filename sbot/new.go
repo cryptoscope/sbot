@@ -13,6 +13,7 @@ import (
 	"go.cryptoscope.co/librarian"
 	"go.cryptoscope.co/margaret/multilog/roaring"
 	"go.cryptoscope.co/muxrpc"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/blobstore"
@@ -254,7 +255,7 @@ func initSbot(s *Sbot) (*Sbot, error) {
 
 		// shit - don't see a way to pass being a different feedtype with shs1
 		// we also need to pass this up the stack...!
-		remote.Algo = ssb.RefAlgoFeedGabby
+		remote.Algo = refs.RefAlgoFeedGabby
 		err = auth.Authorize(remote)
 		if err == nil {
 			level.Debug(log).Log("TODO", "found gg feed, using that. overhaul shs1 to support more payload in the handshake")

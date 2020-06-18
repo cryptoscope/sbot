@@ -14,6 +14,7 @@ import (
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
 	gabbygrove "go.mindeco.de/ssb-gabbygrove"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message/legacy"
@@ -27,7 +28,7 @@ type publishLog struct {
 	create creater
 }
 
-func (p *publishLog) Publish(content interface{}) (*ssb.MessageRef, error) {
+func (p *publishLog) Publish(content interface{}) (*refs.MessageRef, error) {
 	seq, err := p.Append(content)
 	if err != nil {
 		return nil, err
@@ -38,7 +39,7 @@ func (p *publishLog) Publish(content interface{}) (*ssb.MessageRef, error) {
 		return nil, errors.Wrap(err, "publish: failed to get new stored message")
 	}
 
-	kv, ok := val.(ssb.Message)
+	kv, ok := val.(refs.Message)
 	if !ok {
 		return nil, errors.Errorf("publish: unsupported keyer %T", val)
 	}
@@ -76,7 +77,7 @@ func (pl *publishLog) Append(val interface{}) (margaret.Seq, error) {
 
 	// current state of the local sig-chain
 	var (
-		nextPrevious *ssb.MessageRef // = invalid
+		nextPrevious *refs.MessageRef // = invalid
 		nextSequence = margaret.SeqEmpty
 	)
 
@@ -101,7 +102,7 @@ func (pl *publishLog) Append(val interface{}) (margaret.Seq, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "publishLog: failed to establish current seq")
 		}
-		mm, ok := currMM.(ssb.Message)
+		mm, ok := currMM.(refs.Message)
 		if !ok {
 			return nil, errors.Errorf("publishLog: invalid value at sequence %v: %T", currSeq, currMM)
 		}
@@ -145,13 +146,13 @@ func OpenPublishLog(rootLog margaret.Log, sublogs multilog.MultiLog, kp *ssb.Key
 	}
 
 	switch kp.Id.Algo {
-	case ssb.RefAlgoFeedSSB1:
+	case refs.RefAlgoFeedSSB1:
 		pl.create = &legacyCreate{
 			key: *kp,
 		}
-	case ssb.RefAlgoFeedGabby:
+	case refs.RefAlgoFeedGabby:
 		pl.create = &gabbyCreate{
-			enc: gabbygrove.NewEncoder(kp),
+			enc: gabbygrove.NewEncoder(kp.Pair.Secret),
 		}
 	default:
 		return nil, errors.Errorf("publish: unsupported feed algorithm: %s", kp.Id.Algo)
@@ -203,7 +204,7 @@ func UseNowTimestamps(yes bool) PublishOption {
 }
 
 type creater interface {
-	Create(val interface{}, prev *ssb.MessageRef, seq margaret.Seq) (ssb.Message, error)
+	Create(val interface{}, prev *refs.MessageRef, seq margaret.Seq) (refs.Message, error)
 }
 
 type legacyCreate struct {
@@ -212,7 +213,7 @@ type legacyCreate struct {
 	setTimestamp bool
 }
 
-func (lc legacyCreate) Create(val interface{}, prev *ssb.MessageRef, seq margaret.Seq) (ssb.Message, error) {
+func (lc legacyCreate) Create(val interface{}, prev *refs.MessageRef, seq margaret.Seq) (refs.Message, error) {
 	// prepare persisted message
 	var stored legacy.StoredMessage
 	stored.Timestamp_ = time.Now() // "rx"
@@ -252,7 +253,7 @@ type gabbyCreate struct {
 	enc *gabbygrove.Encoder
 }
 
-func (pc gabbyCreate) Create(val interface{}, prev *ssb.MessageRef, seq margaret.Seq) (ssb.Message, error) {
+func (pc gabbyCreate) Create(val interface{}, prev *refs.MessageRef, seq margaret.Seq) (refs.Message, error) {
 	var br *gabbygrove.BinaryRef
 	if prev != nil {
 		var err error

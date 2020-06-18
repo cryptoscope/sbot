@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"go.cryptoscope.co/ssb/internal/mutil"
+	refs "go.mindeco.de/ssb-refs"
 
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/luigi"
@@ -180,19 +181,19 @@ func TestBlobWithHop(t *testing.T) {
 	<-gotMessage
 	done()
 
-	var wantBlob *ssb.BlobRef
+	var wantBlob *refs.BlobRef
 
 	msg, err := mutil.Indirect(bob.RootLog, aliceLog).Get(margaret.BaseSeq(0))
 	r.NoError(err)
-	storedMsg, ok := msg.(ssb.Message)
+	storedMsg, ok := msg.(refs.Message)
 	r.True(ok, "wrong type of message: %T", msg)
 	r.Equal(storedMsg.Seq(), margaret.BaseSeq(1).Seq())
 
 	type testWrap struct {
-		Author  ssb.FeedRef
+		Author  refs.FeedRef
 		Content struct {
 			Type string
-			Blob *ssb.BlobRef
+			Blob *refs.BlobRef
 		}
 	}
 	var m testWrap
@@ -329,15 +330,15 @@ func TestBlobTooBigWantedByGo(t *testing.T) {
 	jsFeed := mutil.Indirect(s.RootLog, jsFeedSeqs)
 	tries := 10
 	var testData struct {
-		Type  string       `json:"test-data"`
-		Small *ssb.BlobRef `json:"small"`
-		Big   *ssb.BlobRef `json:"big"`
+		Type  string        `json:"test-data"`
+		Small *refs.BlobRef `json:"small"`
+		Big   *refs.BlobRef `json:"big"`
 	}
 	for tries > 0 {
 
 		v, err := jsFeed.Get(margaret.BaseSeq(0))
 		if err == nil {
-			msg, ok := v.(ssb.Message)
+			msg, ok := v.(refs.Message)
 			r.True(ok, "not a message")
 
 			err = json.Unmarshal(msg.ContentBytes(), &testData)

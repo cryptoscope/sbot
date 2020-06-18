@@ -11,8 +11,8 @@ import (
 	libbadger "go.cryptoscope.co/librarian/badger"
 	"go.cryptoscope.co/margaret"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/repo"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 const FolderNameGet = "get"
@@ -29,7 +29,7 @@ func OpenGet(r repo.Interface) (librarian.Index, librarian.SinkIndex, error) {
 func updateFn(db *badger.DB) (librarian.SeqSetterIndex, librarian.SinkIndex) {
 	idx := libbadger.NewIndex(db, margaret.BaseSeq(0))
 	sink := librarian.NewSinkIndex(func(ctx context.Context, seq margaret.Seq, val interface{}, idx librarian.SetterIndex) error {
-		msg, ok := val.(ssb.Message)
+		msg, ok := val.(refs.Message)
 		if !ok {
 			err, ok := val.(error)
 			if ok && margaret.IsErrNulled(err) {

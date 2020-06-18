@@ -18,10 +18,11 @@ import (
 	"go.cryptoscope.co/muxrpc"
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type handler struct {
-	Id        *ssb.FeedRef
+	Id        *refs.FeedRef
 	RootLog   margaret.Log
 	UserFeeds multilog.MultiLog
 	WantList  ssb.ReplicationLister

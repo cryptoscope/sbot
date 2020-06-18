@@ -6,11 +6,11 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type WhoamiReply struct {
-	ID *ssb.FeedRef `json:"id"`
+	ID *refs.FeedRef `json:"id"`
 }
 
 func NewCreateHistArgsFromMap(argMap map[string]interface{}) (*CreateHistArgs, error) {
@@ -47,7 +47,7 @@ func NewCreateHistArgsFromMap(argMap map[string]interface{}) (*CreateHistArgs, e
 			switch k {
 			case "id":
 				var err error
-				qry.ID, err = ssb.ParseFeedRef(val)
+				qry.ID, err = refs.ParseFeedRef(val)
 				if err != nil {
 					return nil, errors.Wrapf(err, "ssb/message: not a feed ref")
 				}
@@ -106,8 +106,8 @@ type CreateHistArgs struct {
 	CommonArgs
 	StreamArgs
 
-	ID  *ssb.FeedRef `json:"id,omitempty"`
-	Seq int64        `json:"seq,omitempty"`
+	ID  *refs.FeedRef `json:"id,omitempty"`
+	Seq int64         `json:"seq,omitempty"`
 
 	AsJSON bool `json:"asJSON,omitempty"`
 }
@@ -130,5 +130,5 @@ type MessagesByTypeArgs struct {
 type TanglesArgs struct {
 	CommonArgs
 	StreamArgs
-	Root ssb.MessageRef `json:"root"`
+	Root refs.MessageRef `json:"root"`
 }

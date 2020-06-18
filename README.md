@@ -109,7 +109,7 @@ func main() {
 	publish, err := multilogs.OpenPublishLog(sbot.RootLog, sbot.UserFeeds, *sbot.KeyPair)
 	check(err)
 
-	alice, err := ssb.ParseFeedRef("@alicesKeyInActualBase64Bytes.ed25519")
+	alice, err := refs.ParseFeedRef("@alicesKeyInActualBase64Bytes.ed25519")
 	check(err)
 
 	var someMsgs = []interface{}{

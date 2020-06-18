@@ -9,7 +9,7 @@ import (
 	"github.com/cryptix/go/logging"
 	"go.cryptoscope.co/margaret/multilog"
 	multimkv "go.cryptoscope.co/margaret/multilog/roaring/mkv"
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 var check = logging.CheckFatal
@@ -46,7 +46,7 @@ func main() {
 
 	// check has
 	if len(os.Args) > 2 {
-		ref, err := ssb.ParseFeedRef(os.Args[2])
+		ref, err := refs.ParseFeedRef(os.Args[2])
 		check(err)
 		has, err := multilog.Has(mlog, ref.StoredAddr())
 		log.Log("mlog", "has", "addr", ref.Ref(), "has?", has, "hasErr", err)

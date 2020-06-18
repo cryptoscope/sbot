@@ -8,6 +8,7 @@ import (
 	"github.com/cryptix/go/logging"
 	"github.com/go-kit/kit/log/level"
 	"github.com/pkg/errors"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc"
@@ -43,7 +44,7 @@ func checkAndLog(log logging.Interface, err error) {
 	}
 }
 
-func New(log logging.Interface, self ssb.FeedRef, bs ssb.BlobStore, wm ssb.WantManager) ssb.Plugin {
+func New(log logging.Interface, self refs.FeedRef, bs ssb.BlobStore, wm ssb.WantManager) ssb.Plugin {
 	rootHdlr := muxrpc.HandlerMux{}
 
 	// TODO: needs priv checks
@@ -117,6 +118,6 @@ type endpoint struct {
 	edp muxrpc.Endpoint
 }
 
-func (edp endpoint) Add(ctx context.Context) (ssb.MessageRef, error) {
-	return ssb.MessageRef{}, errors.New("not implemented yet")
+func (edp endpoint) Add(ctx context.Context) (refs.MessageRef, error) {
+	return refs.MessageRef{}, errors.New("not implemented yet")
 }

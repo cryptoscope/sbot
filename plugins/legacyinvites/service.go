@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/muxrpc"
+	refs "go.mindeco.de/ssb-refs"
 	"modernc.org/kv"
 
 	"go.cryptoscope.co/ssb"
@@ -21,7 +22,7 @@ import (
 type Service struct {
 	logger kitlog.Logger
 
-	self    *ssb.FeedRef
+	self    *refs.FeedRef
 	network ssb.Network
 
 	publish    ssb.Publisher
@@ -43,7 +44,7 @@ func (s *Service) MasterPlugin() ssb.Plugin {
 	}
 }
 
-func (s *Service) Authorize(to *ssb.FeedRef) error {
+func (s *Service) Authorize(to *refs.FeedRef) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -83,7 +84,7 @@ var _ ssb.Authorizer = (*Service)(nil)
 func New(
 	logger kitlog.Logger,
 	r repo.Interface,
-	self *ssb.FeedRef,
+	self *refs.FeedRef,
 	nw ssb.Network,
 	publish ssb.Publisher,
 	rlog margaret.Log,
@@ -118,7 +119,7 @@ func (s Service) Create(uses uint, note string) (*invite.Token, error) {
 
 	// roll seed
 	var inv invite.Token
-	var seedRef *ssb.FeedRef
+	var seedRef *refs.FeedRef
 	for {
 		rand.Read(inv.Seed[:])
 

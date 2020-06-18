@@ -10,25 +10,26 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type authorizer struct {
 	b       Builder
-	from    *ssb.FeedRef
+	from    *refs.FeedRef
 	maxHops int
 	log     log.Logger
 }
 
 // ErrNoSuchFrom should only happen if you reconstruct your existing log from the network
 type ErrNoSuchFrom struct {
-	Who *ssb.FeedRef
+	Who *refs.FeedRef
 }
 
 func (nsf ErrNoSuchFrom) Error() string {
 	return fmt.Sprintf("ssb/graph: no such from: %s", nsf.Who.Ref())
 }
 
-func (a *authorizer) Authorize(to *ssb.FeedRef) error {
+func (a *authorizer) Authorize(to *refs.FeedRef) error {
 	fg, err := a.b.Build()
 	if err != nil {
 		return errors.Wrap(err, "graph/Authorize: failed to make friendgraph")

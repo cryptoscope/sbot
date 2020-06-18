@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/margaret"
 	gabbygrove "go.mindeco.de/ssb-gabbygrove"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message/legacy"
 )
 
@@ -54,9 +54,9 @@ func (wl WrappedLog) Append(val interface{}) (margaret.Seq, error) {
 		return wl.AlterableLog.Append(mm)
 	}
 
-	abs, ok := val.(ssb.Message)
+	abs, ok := val.(refs.Message)
 	if !ok {
-		return margaret.SeqEmpty, errors.Errorf("wrappedLog: not a ssb.Message: %T", val)
+		return margaret.SeqEmpty, errors.Errorf("wrappedLog: not a refs.Message: %T", val)
 	}
 
 	mm.key = abs.Key()

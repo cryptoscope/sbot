@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.cryptoscope.co/margaret"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message/legacy"
@@ -99,7 +100,7 @@ func TestFormatsSimple(t *testing.T) {
 				r.NoError(err)
 				storedV, err := rl.Get(rootSeq.(margaret.Seq))
 				r.NoError(err)
-				storedMsg, ok := storedV.(ssb.Message)
+				storedMsg, ok := storedV.(refs.Message)
 				r.True(ok)
 				t.Logf("msg:%d\n%s", i, storedMsg.ValueContentJSON())
 				a.NotNil(storedMsg.Key(), "msg:%d - key", i)
@@ -114,7 +115,7 @@ func TestFormatsSimple(t *testing.T) {
 					r.True(ok, "got:%T", prevV)
 					prevV, err = rl.Get(prevSeq)
 					r.NoError(err)
-					prevMsg, ok := prevV.(ssb.Message)
+					prevMsg, ok := prevV.(refs.Message)
 					r.True(ok, "got:%T", prevV)
 
 					a.Equal(prevMsg.Key().Hash, storedMsg.Previous().Hash, "msg:%d - wrong previous", i)

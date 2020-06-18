@@ -6,6 +6,7 @@ import (
 	"github.com/cryptix/go/logging"
 	"github.com/go-kit/kit/log/level"
 	"go.cryptoscope.co/muxrpc"
+	refs "go.mindeco.de/ssb-refs"
 
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/graph"
@@ -36,7 +37,7 @@ func checkAndLog(log logging.Interface, err error) {
 	}
 }
 
-func New(log logging.Interface, self ssb.FeedRef, b graph.Builder) ssb.Plugin {
+func New(log logging.Interface, self refs.FeedRef, b graph.Builder) ssb.Plugin {
 	rootHdlr := muxmux.New(log)
 
 	rootHdlr.RegisterAsync(muxrpc.Method{"friends", "isFollowing"}, isFollowingH{
@@ -100,7 +101,7 @@ type endpoint struct {
 }
 
 /*
-func (edp endpoint) Add(ctx context.Context) (ssb.MessageRef, error) {
-	return ssb.MessageRef{}, errors.New("not implemented yet")
+func (edp endpoint) Add(ctx context.Context) (refs.MessageRef, error) {
+	return refs.MessageRef{}, errors.New("not implemented yet")
 }
 */

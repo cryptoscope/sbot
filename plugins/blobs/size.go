@@ -8,11 +8,11 @@ import (
 
 	"github.com/cryptix/go/logging"
 	"github.com/pkg/errors"
-
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/ssb"
-)
 
+	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
+)
 
 type sizeHandler struct {
 	bs  ssb.BlobStore
@@ -27,7 +27,7 @@ func (h sizeHandler) HandleCall(ctx context.Context, req *muxrpc.Request, edp mu
 		req.Type = "async"
 	}
 
-	var blobs []*ssb.BlobRef
+	var blobs []*refs.BlobRef
 	err := json.Unmarshal(req.RawArgs, &blobs)
 	if err != nil {
 		req.Stream.CloseWithError(errors.Wrap(err, "error parsing blob reference"))

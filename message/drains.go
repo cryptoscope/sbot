@@ -12,8 +12,8 @@ import (
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/margaret"
 	gabbygrove "go.mindeco.de/ssb-gabbygrove"
+	refs "go.mindeco.de/ssb-refs"
 
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message/legacy"
 )
 
@@ -22,7 +22,7 @@ import (
 // TODO: start and abs could be the same parameter
 // TODO: needs configuration for hmac and what not..
 // => maybe construct those from a (global) ref register where all the suffixes live with their corresponding network configuration?
-func NewVerifySink(who *ssb.FeedRef, start margaret.Seq, abs ssb.Message, snk luigi.Sink, hmacKey *[32]byte) luigi.Sink {
+func NewVerifySink(who *refs.FeedRef, start margaret.Seq, abs refs.Message, snk luigi.Sink, hmacKey *[32]byte) luigi.Sink {
 
 	sd := &streamDrain{
 		who:       who,
@@ -31,23 +31,23 @@ func NewVerifySink(who *ssb.FeedRef, start margaret.Seq, abs ssb.Message, snk lu
 		storage:   snk,
 	}
 	switch who.Algo {
-	case ssb.RefAlgoFeedSSB1:
+	case refs.RefAlgoFeedSSB1:
 		sd.verify = legacyVerify{hmacKey: hmacKey}
-	case ssb.RefAlgoFeedGabby:
+	case refs.RefAlgoFeedGabby:
 		sd.verify = gabbyVerify{hmacKey: hmacKey}
 	}
 	return sd
 }
 
 type verifier interface {
-	Verify(v interface{}) (ssb.Message, error)
+	Verify(v interface{}) (refs.Message, error)
 }
 
 type legacyVerify struct {
 	hmacKey *[32]byte
 }
 
-func (lv legacyVerify) Verify(v interface{}) (ssb.Message, error) {
+func (lv legacyVerify) Verify(v interface{}) (refs.Message, error) {
 	rmsg, ok := v.(json.RawMessage)
 	if !ok {
 		return nil, errors.Errorf("legacyVerify: expected %T - got %T", rmsg, v)
@@ -71,7 +71,7 @@ type gabbyVerify struct {
 	hmacKey *[32]byte
 }
 
-func (gv gabbyVerify) Verify(v interface{}) (msg ssb.Message, err error) {
+func (gv gabbyVerify) Verify(v interface{}) (msg refs.Message, err error) {
 	trBytes, ok := v.([]uint8)
 	if !ok {
 		err = errors.Errorf("gabbyVerify: expected %T - got %T", trBytes, v)
@@ -103,11 +103,11 @@ type streamDrain struct {
 	// gets the input from the screen and returns the next decoded message, if it is valid
 	verify verifier
 
-	who *ssb.FeedRef // which feed is pulled
+	who *refs.FeedRef // which feed is pulled
 
 	// holds onto the current/newest method (for sequence check and prev hash compare)
 	latestSeq margaret.BaseSeq
-	latestMsg ssb.Message
+	latestMsg refs.Message
 
 	storage luigi.Sink
 }
@@ -138,7 +138,7 @@ func (ld streamDrain) Close() error { return ld.storage.Close() }
 // ValidateNext checks the author stays the same across the feed,
 // that he previous hash is correct and that the sequence number is increasing correctly
 // TODO: move all the message's publish and drains to it's own package
-func ValidateNext(current, next ssb.Message) error {
+func ValidateNext(current, next refs.Message) error {
 	if current != nil {
 		author := current.Author()
 

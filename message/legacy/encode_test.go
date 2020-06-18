@@ -13,10 +13,11 @@ import (
 	"github.com/kylelemons/godebug/diff"
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type testMessage struct {
-	Author          *ssb.FeedRef
+	Author          *refs.FeedRef
 	Hash, Signature string
 	Input, NoSig    []byte
 }
@@ -73,7 +74,7 @@ func init() {
 		}
 		r, err := ssb.ParseRef(a.(string))
 		checkPanic(errors.Wrapf(err, "test(%d) - failed to parse author ref", i))
-		fr, ok := r.(*ssb.FeedRef)
+		fr, ok := r.(*refs.FeedRef)
 		if !ok {
 			checkPanic(errors.Errorf("test(%d) - expected valid author ref", i))
 		}

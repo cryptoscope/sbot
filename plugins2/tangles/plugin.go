@@ -11,11 +11,11 @@ import (
 	"go.cryptoscope.co/margaret"
 	"go.cryptoscope.co/margaret/multilog"
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/internal/mutil"
 	"go.cryptoscope.co/ssb/internal/transform"
 	"go.cryptoscope.co/ssb/message"
 	"go.cryptoscope.co/ssb/plugins2"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 type Plugin struct {
@@ -51,13 +51,13 @@ func (g tangleHandler) HandleCall(ctx context.Context, req *muxrpc.Request, edp 
 	}
 	var qry struct {
 		message.CreateHistArgs
-		Root *ssb.MessageRef
+		Root *refs.MessageRef
 	}
 
 	switch v := req.Args()[0].(type) {
 	case string:
 		var err error
-		qry.Root, err = ssb.ParseMessageRef(v)
+		qry.Root, err = refs.ParseMessageRef(v)
 		if err != nil {
 			req.CloseWithError(errors.Wrap(err, "bad request - invalid root"))
 			return
@@ -78,7 +78,7 @@ func (g tangleHandler) HandleCall(ctx context.Context, req *muxrpc.Request, edp 
 			return
 		}
 
-		qry.Root, err = ssb.ParseMessageRef(root)
+		qry.Root, err = refs.ParseMessageRef(root)
 		if err != nil {
 			req.CloseWithError(errors.Wrap(err, "bad request - invalid root"))
 			return

@@ -17,6 +17,7 @@ import (
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/message"
 	"go.cryptoscope.co/ssb/sbot"
+	refs "go.mindeco.de/ssb-refs"
 )
 
 func TestGabbyFeedFromGo(t *testing.T) {
@@ -124,7 +125,7 @@ func TestGabbyFeedFromGo(t *testing.T) {
 		r.NoError(err)
 		msg, err := s.RootLog.Get(seqMsg.(margaret.BaseSeq))
 		r.NoError(err)
-		storedMsg, ok := msg.(ssb.Message)
+		storedMsg, ok := msg.(refs.Message)
 		r.True(ok, "wrong type of message: %T", msg)
 
 		var testMsg struct {
