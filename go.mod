@@ -30,6 +30,7 @@ require (
 	go.cryptoscope.co/muxrpc v1.5.4-0.20200527143049-1c5d85371ced
 	go.cryptoscope.co/netwrap v0.1.1
 	go.cryptoscope.co/secretstream v1.2.2
+	go.mindeco.de/ssb-gabbygrove v0.1.7-0.20200618115102-169cb68d2398 // indirect
 	go.mindeco.de/ssb-multiserver v0.0.0-20200615120544-ce4da9d56996 // indirect
 	go.mindeco.de/ssb-refs v0.0.0-20200615121534-e677c80c4097
 	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
