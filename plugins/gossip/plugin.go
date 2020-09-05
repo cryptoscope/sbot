@@ -27,16 +27,20 @@ func New(
 	id *ssb.FeedRef,
 	rootLog margaret.Log,
 	userFeeds multilog.MultiLog,
+	fm *FeedManager,
 	wantList ssb.ReplicationLister,
 	opts ...interface{},
 ) *plugin {
 	h := &handler{
-		Id:        id,
-		RootLog:   rootLog,
-		UserFeeds: userFeeds,
-		WantList:  wantList,
-		Info:      log,
-		rootCtx:   ctx,
+		Id: id,
+
+		RootLog:     rootLog,
+		UserFeeds:   userFeeds,
+		feedManager: fm,
+		WantList:    wantList,
+
+		Info:    log,
+		rootCtx: ctx,
 
 		activeLock:  &sync.Mutex{},
 		activeFetch: make(map[string]struct{}),
@@ -62,15 +66,6 @@ func New(
 		h.hopCount = 1
 	}
 
-	h.feedManager = NewFeedManager(
-		h.rootCtx,
-		h.RootLog,
-		h.UserFeeds,
-		h.Info,
-		h.sysGauge,
-		h.sysCtr,
-	)
-
 	return &plugin{h}
 }
 
@@ -81,15 +76,19 @@ func NewHist(
 	rootLog margaret.Log,
 	userFeeds multilog.MultiLog,
 	wantList ssb.ReplicationLister,
+	fm *FeedManager,
 	opts ...interface{},
 ) histPlugin {
 	h := &handler{
-		Id:        id,
-		RootLog:   rootLog,
-		UserFeeds: userFeeds,
-		WantList:  wantList,
-		Info:      log,
-		rootCtx:   ctx,
+		Id: id,
+
+		RootLog:     rootLog,
+		UserFeeds:   userFeeds,
+		feedManager: fm,
+		WantList:    wantList,
+
+		Info:    log,
+		rootCtx: ctx,
 
 		// not using fetch here
 		activeLock:  nil,
@@ -116,15 +115,6 @@ func NewHist(
 	if h.hopCount == 0 {
 		h.hopCount = 1
 	}
-
-	h.feedManager = NewFeedManager(
-		h.rootCtx,
-		h.RootLog,
-		h.UserFeeds,
-		h.Info,
-		h.sysGauge,
-		h.sysCtr,
-	)
 
 	return histPlugin{h}
 }

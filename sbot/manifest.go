@@ -55,6 +55,14 @@ const manifestBlob = `
 	"messagesByType": "source",
 	"createHistoryStream": "source",
 
+	"partialReplication":{
+	 	"getFeed": 'source',
+	 	"getFeedReverse": 'source',
+	 	"getTangle": 'async',
+	 	"getMessagesOfType": 'source'
+	},
+		
+
 	"tangles": "source",
     "names": {
         "get": "async",

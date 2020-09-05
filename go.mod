@@ -10,8 +10,8 @@ require (
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/go-kit/kit v0.10.0
-	github.com/hashicorp/go-multierror v1.1.0
 	github.com/gorilla/websocket v1.4.1
+	github.com/hashicorp/go-multierror v1.1.0
 	github.com/keks/nocomment v0.0.0-20181007001506-30c6dcb4a472
 	github.com/keks/persist v0.0.0-20191006175951-43c124092b8b // indirect
 	github.com/kylelemons/godebug v1.1.0
@@ -22,17 +22,17 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.3.0
 	github.com/shurcooL/go-goon v0.0.0-20170922171312-37c2f522c041
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	github.com/ugorji/go/codec v1.1.7
 	go.cryptoscope.co/librarian v0.2.1-0.20200604160012-d85e03a70e79
 	go.cryptoscope.co/luigi v0.3.6-0.20200131144242-3256b54e72c8
-	go.cryptoscope.co/margaret v0.1.7-0.20200603134144-6888097421a8
+	go.cryptoscope.co/margaret v0.1.7-0.20200905173753-1e495149ebeb
 	go.cryptoscope.co/muxrpc v1.5.4-0.20200527143049-1c5d85371ced
 	go.cryptoscope.co/netwrap v0.1.1
 	go.cryptoscope.co/secretstream v1.2.2
 	go.mindeco.de/ssb-gabbygrove v0.1.6
 	go.mindeco.de/ssb-multiserver v0.0.0-20200302144839-6902de33e194
-	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
+	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9 // indirect
 	golang.org/x/text v0.3.2
@@ -49,3 +49,5 @@ require (
 // Background: https://github.com/agl/ed25519/issues/27#issuecomment-591073699
 // The branch in use: https://github.com/cryptix/golang_x_crypto/tree/non-internal-edwards
 replace golang.org/x/crypto => github.com/cryptix/golang_x_crypto v0.0.0-20200303113948-2939d6771b24
+
+replace go.mindeco.de/ssb-gabbygrove => /home/cryptix/go-repos/go-gabbygrove

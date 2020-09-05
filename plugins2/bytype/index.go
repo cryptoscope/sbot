@@ -15,7 +15,7 @@ import (
 )
 
 func (plug *Plugin) MakeMultiLog(r repo.Interface) (multilog.MultiLog, librarian.SinkIndex, error) {
-	mlog, serve, err := repo.OpenMultiLog(r, plug.Name(), IndexUpdate)
+	mlog, serve, err := repo.OpenFileSystemMultiLog(r, plug.Name(), IndexUpdate)
 	plug.h.types = mlog
 	return mlog, serve, err
 }
@@ -33,14 +33,19 @@ func IndexUpdate(ctx context.Context, seq margaret.Seq, msgv interface{}, mlog m
 		return err
 	}
 
-	var typeMsg struct {
-		Type string
+	var typedMsg struct {
+		Content struct {
+			Type string
+		}
 	}
 
-	err := json.Unmarshal(msg.ContentBytes(), &typeMsg)
-	typeStr := typeMsg.Type
+	content := msg.ValueContentJSON()
+	err := json.Unmarshal(content, &typedMsg)
+	typeStr := typedMsg.Content.Type
 	// TODO: maybe check error with more detail - i.e. only drop type errors
 	if err != nil || typeStr == "" {
+		// TODO: special case boxed messages
+		// fmt.Println(string(content))
 		return nil
 	}
 

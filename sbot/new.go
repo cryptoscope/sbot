@@ -11,6 +11,7 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/librarian"
+	"go.cryptoscope.co/margaret/multilog/roaring"
 	"go.cryptoscope.co/muxrpc"
 
 	"go.cryptoscope.co/ssb"
@@ -28,6 +29,7 @@ import (
 	"go.cryptoscope.co/ssb/plugins/get"
 	"go.cryptoscope.co/ssb/plugins/gossip"
 	"go.cryptoscope.co/ssb/plugins/legacyinvites"
+	"go.cryptoscope.co/ssb/plugins/partial"
 	privplug "go.cryptoscope.co/ssb/plugins/private"
 	"go.cryptoscope.co/ssb/plugins/publish"
 	"go.cryptoscope.co/ssb/plugins/rawread"
@@ -306,19 +308,46 @@ func initSbot(s *Sbot) (*Sbot, error) {
 		copy(k[:], s.signHMACsecret)
 		histOpts = append(histOpts, gossip.HMACSecret(&k))
 	}
+
+	fm := gossip.NewFeedManager(
+		ctx,
+		s.RootLog,
+		uf,
+		kitlog.With(log, "feedmanager"),
+		s.systemGauge,
+		s.eventCounter,
+	)
 	s.public.Register(gossip.New(ctx,
 		kitlog.With(log, "plugin", "gossip"),
-		s.KeyPair.Id, s.RootLog, uf, s.replicator.makeLister(),
+		s.KeyPair.Id, s.RootLog, uf, fm, s.replicator.makeLister(),
 		histOpts...))
 
 	// incoming createHistoryStream handler
 	hist := gossip.NewHist(ctx,
 		kitlog.With(log, "plugin", "gossip/hist"),
-		s.KeyPair.Id, s.RootLog, uf, s.replicator.makeLister(),
+		s.KeyPair.Id,
+		s.RootLog, uf,
+		s.replicator.makeLister(),
+		fm,
 		histOpts...)
 	s.public.Register(hist)
 
 	s.master.Register(get.New(s, s.RootLog))
+
+	if feeds, ok := s.mlogIndicies["userFeeds"]; ok {
+		if byType, ok := s.mlogIndicies["msgTypes"]; ok {
+			if tangles, ok := s.mlogIndicies["tangles"]; ok {
+				plug := partial.New(s.info,
+					fm,
+					feeds.(*roaring.MultiLog),
+					byType.(*roaring.MultiLog),
+					tangles.(*roaring.MultiLog),
+					s.RootLog)
+				s.public.Register(plug)
+				s.master.Register(plug)
+			}
+		}
+	}
 
 	// raw log plugins
 	s.master.Register(rawread.NewSequenceStream(s.RootLog))

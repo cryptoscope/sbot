@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/cryptix/go/logging"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/go-kit/kit/metrics"
@@ -219,8 +218,8 @@ func (g *handler) HandleCall(
 			// } else {
 			// dbgLog.Log("msg", "feed access granted")
 		}
-		query.Limit = 50
-		spew.Dump(query)
+		// query.Limit = 50
+		// spew.Dump(query)
 		err = g.feedManager.CreateStreamHistory(ctx, req.Stream, query)
 		if err != nil {
 			if luigi.IsEOS(err) {

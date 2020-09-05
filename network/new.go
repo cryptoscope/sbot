@@ -332,7 +332,7 @@ func (conn *wrappedConn) Read(data []byte) (int, error) {
 
 	// 	conn.r = r
 	// }
-	fmt.Printf("wsServ: read %d bytes\n", n)
+	// fmt.Printf("wsServ: read %d bytes\n", n)
 	return n, err
 }
 
@@ -353,7 +353,6 @@ func (wc *wrappedConn) renewReader() error {
 func (conn wrappedConn) Write(data []byte) (int, error) {
 	writeCloser, err := conn.wsc.NextWriter(websocket.BinaryMessage)
 	if err != nil {
-		// n.log.Log("warning",  "err", err, "remote", remoteAddr)
 		return -1, errors.Wrap(err, "wsConn: failed to create Reader")
 	}
 
@@ -361,7 +360,6 @@ func (conn wrappedConn) Write(data []byte) (int, error) {
 	if err != nil {
 		return -1, errors.Wrap(err, "wsConn: failed to copy data")
 	}
-	fmt.Printf("wsServ: wrote %d bytes\n", n)
 	return int(n), writeCloser.Close()
 }
 

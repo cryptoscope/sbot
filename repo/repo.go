@@ -16,6 +16,7 @@ import (
 	"go.cryptoscope.co/margaret/codec/msgpack"
 	"go.cryptoscope.co/margaret/multilog"
 	multibadger "go.cryptoscope.co/margaret/multilog/badger"
+	multifs "go.cryptoscope.co/margaret/multilog/roaring/fs"
 	multimkv "go.cryptoscope.co/margaret/multilog/roaring/mkv"
 	"modernc.org/kv"
 
@@ -72,6 +73,38 @@ func OpenBadgerMultiLog(r Interface, name string, f multilog.Func) (multilog.Mul
 	mlogSink := multilog.NewSink(idxStateFile, mlog, f)
 
 	return mlog, mlogSink, nil
+}
+
+func OpenFileSystemMultiLog(r Interface, name string, f multilog.Func) (multilog.MultiLog, librarian.SinkIndex, error) {
+	dbPath := r.GetPath(PrefixMultiLog, name, "fs-bitmaps")
+	err := os.MkdirAll(dbPath, 0700)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "mkdir error for %q", dbPath)
+	}
+	mlog, err := multifs.NewMultiLog(dbPath)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "open error for %q", dbPath)
+	}
+
+	if err := mlog.CompressAll(); err != nil {
+		return nil, nil, errors.Wrapf(err, "failed to compress db")
+	}
+
+	// todo: save the current state in the multilog
+	statePath := r.GetPath(PrefixMultiLog, name, "state_mkv.json")
+	mode := os.O_RDWR | os.O_EXCL
+	if _, err := os.Stat(statePath); os.IsNotExist(err) {
+		mode |= os.O_CREATE
+	}
+	idxStateFile, err := os.OpenFile(statePath, mode, 0700)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "error opening state file")
+	}
+
+	mlogSink := multilog.NewSink(idxStateFile, mlog, f)
+
+	return mlog, mlogSink, nil
+
 }
 
 func OpenMultiLog(r Interface, name string, f multilog.Func) (multilog.MultiLog, librarian.SinkIndex, error) {

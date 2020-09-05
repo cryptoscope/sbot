@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc"
+	"go.cryptoscope.co/ssb"
 	cli "gopkg.in/urfave/cli.v2"
 )
 
@@ -27,16 +28,31 @@ var streamFlags = []cli.Flag{
 type mapMsg map[string]interface{}
 
 var typeStreamCmd = &cli.Command{
-	Name:      "bytype",
-	UsageText: "aka messagesByType",
-	Flags:     streamFlags,
+	Name:  "partial",
+	Flags: append(streamFlags, &cli.StringFlag{Name: "id"}, &cli.BoolFlag{Name: "asJSON"}),
 	Action: func(ctx *cli.Context) error {
+
 		client, err := newClient(ctx)
 		if err != nil {
 			return err
 		}
 
-		src, err := client.Source(longctx, mapMsg{}, muxrpc.Method{"messagesByType"}, ctx.Args().First())
+		ir, err := client.Whoami()
+		if err != nil {
+			return err
+		}
+		id := ir.Ref()
+		if f := ctx.String("id"); f != "" {
+			id = f
+		}
+
+		src, err := client.Source(longctx, mapMsg{}, muxrpc.Method{"partial"}, struct {
+			ID   string `json:"id"`
+			Tipe string `json:"type"`
+		}{
+			ID:   id,
+			Tipe: ctx.Args().First(),
+		})
 		if err != nil {
 			return errors.Wrap(err, "source stream call failed")
 		}
@@ -49,16 +65,24 @@ var historyStreamCmd = &cli.Command{
 	Name:  "hist",
 	Flags: append(streamFlags, &cli.StringFlag{Name: "id"}, &cli.BoolFlag{Name: "asJSON"}),
 	Action: func(ctx *cli.Context) error {
-		if ctx.String("id") == "" {
-			return errors.Errorf("--id flag is unset but required")
-		}
-
 		client, err := newClient(ctx)
+		if err != nil {
+			return err
+		}
+		ir, err := client.Whoami()
 		if err != nil {
 			return err
 		}
 
 		var args = getStreamArgs(ctx)
+		args.ID = ir
+		if f := ctx.String("id"); f != "" {
+			flagRef, err := ssb.ParseFeedRef(f)
+			if err != nil {
+				return err
+			}
+			args.ID = flagRef
+		}
 		src, err := client.Source(longctx, mapMsg{}, muxrpc.Method{"createHistoryStream"}, args)
 		if err != nil {
 			return errors.Wrap(err, "source stream call failed")

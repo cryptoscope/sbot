@@ -16,7 +16,7 @@ import (
 const IndexNameFeeds = "userFeeds"
 
 func OpenUserFeeds(r repo.Interface) (multilog.MultiLog, librarian.SinkIndex, error) {
-	return repo.OpenMultiLog(r, IndexNameFeeds, UserFeedsUpdate)
+	return repo.OpenFileSystemMultiLog(r, IndexNameFeeds, UserFeedsUpdate)
 }
 
 func UserFeedsUpdate(ctx context.Context, seq margaret.Seq, value interface{}, mlog multilog.MultiLog) error {
