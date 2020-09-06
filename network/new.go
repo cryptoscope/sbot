@@ -3,7 +3,6 @@
 package network
 
 import (
-	"bytes"
 	"context"
 	"crypto/ed25519"
 	"fmt"
@@ -12,15 +11,12 @@ import (
 	"net/http"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/go-kit/kit/metrics"
-	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/muxrpc/debug"
 	"go.cryptoscope.co/netwrap"
 	"go.cryptoscope.co/secretstream"
 	"go.cryptoscope.co/secretstream/secrethandshake"
@@ -88,6 +84,9 @@ type node struct {
 	evtCtr     metrics.Counter
 	sysGauge   metrics.Gauge
 	latency    metrics.Histogram
+
+	// "ssb-ws"
+	httpHandler http.Handler
 }
 
 func New(opts Options) (ssb.Network, error) {
@@ -152,85 +151,31 @@ func New(opts Options) (ssb.Network, error) {
 	n.log = opts.Logger
 
 	// local websocket
-	// httpMux := http.NewServeMux()
-
-	// httpMux.Handle("/", )
 	n.log.Log("info", "new ws conn")
-	var upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-		CheckOrigin: func(_ *http.Request) bool {
-			return true
-		},
-		EnableCompression: false,
-	}
-	wsHandler := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		remoteAddr, err := net.ResolveTCPAddr("tcp", req.RemoteAddr)
-		if err != nil {
-			n.log.Log("warning", "failed wrap", "err", err, "remote", remoteAddr)
+
+	wsHandler := websockHandler(n)
+	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		url := req.URL.String()
+		if url == "/" {
+			wsHandler(w, req)
 			return
 		}
-		wsConn, err := upgrader.Upgrade(w, req, nil)
-		if err != nil {
-			n.log.Log("warning", "failed wrap", "err", err, "remote", remoteAddr)
-			return
+		// n.log.Log("http-url-req", url)
+		if n.httpHandler != nil {
+			n.httpHandler.ServeHTTP(w, req)
 		}
-
-		wrappedConn := &wrappedConn{
-			remote: remoteAddr,
-			local: &net.TCPAddr{
-				IP:   nil,
-				Port: 8989,
-			},
-			wsc: wsConn,
-		}
-
-		level.Info(n.log).Log("event", "new ws conn", "r", remoteAddr)
-
-		cw := n.secretServer.ConnWrapper()
-		cryptoConn, err := cw(wrappedConn)
-		if err != nil {
-			level.Error(n.log).Log("warning", "failed to crypt", "err", err, "remote", remoteAddr)
-			wsConn.Close()
-			return
-		}
-
-		level.Warn(n.log).Log("msg", "crypto wrap")
-		wrapped, err := debug.WrapDump("webmux", cryptoConn)
-		if err != nil {
-			level.Error(n.log).Log("warning", "failed wrap", "err", err, "remote", remoteAddr)
-			wsConn.Close()
-			return
-		}
-
-		pkr := muxrpc.NewPacker(wrapped)
-
-		h, err := n.opts.MakeHandler(wrapped)
-		if err != nil {
-			err = errors.Wrap(err, "unix sock make handler")
-			level.Error(n.log).Log("warn", err)
-			wsConn.Close()
-			return
-		}
-
-		level.Debug(n.log).Log("event", "handler made - serving")
-
-		edp := muxrpc.HandleWithRemote(pkr, h, cryptoConn.RemoteAddr())
-
-		srv := edp.(muxrpc.Server)
-		// TODO: bundle root and connection context
-		if err := srv.Serve(req.Context()); err != nil {
-			level.Error(n.log).Log("conn", "serve exited", "err", err, "peer", remoteAddr)
-		}
-		wsConn.Close()
 	})
 
 	go func() {
-		err := http.ListenAndServe("127.0.0.1:8989", wsHandler)
-		level.Error(n.log).Log("conn", "ws :8998 listen exited", "err", err)
+		err := http.ListenAndServe(":8989", httpHandler)
+		level.Error(n.log).Log("conn", "ssb-ws :8998 listen exited", "err", err)
 	}()
 
 	return n, nil
+}
+
+func (n *node) HandleHTTP(h http.Handler) {
+	n.httpHandler = h
 }
 
 func (n *node) GetConnTracker() ssb.ConnTracker {
@@ -306,78 +251,6 @@ func (n *node) removeRemote(edp muxrpc.Endpoint) {
 		panic(err)
 	}
 	delete(n.remotes, r.Ref())
-}
-
-type wrappedConn struct {
-	remote net.Addr
-	local  net.Addr
-	// wc     io.WriteCloser
-	r   io.Reader
-	wsc *websocket.Conn
-}
-
-func (conn *wrappedConn) Read(data []byte) (int, error) {
-	if conn.r == nil {
-		if err := conn.renewReader(); err != nil {
-			return -1, err
-		}
-
-	}
-	n, err := conn.r.Read(data)
-	if err == io.EOF {
-		if err := conn.renewReader(); err != nil {
-			return -1, err
-		}
-		return conn.Read(data)
-	}
-
-	// 	conn.r = r
-	// }
-	// fmt.Printf("wsServ: read %d bytes\n", n)
-	return n, err
-}
-
-func (wc *wrappedConn) renewReader() error {
-	mt, r, err := wc.wsc.NextReader()
-	if err != nil {
-		return errors.Wrap(err, "wsConn: failed to get reader")
-	}
-
-	if mt != websocket.BinaryMessage {
-		return errors.Errorf("wsConn: not binary message: %v", mt)
-
-	}
-	wc.r = r
-	return nil
-}
-
-func (conn wrappedConn) Write(data []byte) (int, error) {
-	writeCloser, err := conn.wsc.NextWriter(websocket.BinaryMessage)
-	if err != nil {
-		return -1, errors.Wrap(err, "wsConn: failed to create Reader")
-	}
-
-	n, err := io.Copy(writeCloser, bytes.NewReader(data))
-	if err != nil {
-		return -1, errors.Wrap(err, "wsConn: failed to copy data")
-	}
-	return int(n), writeCloser.Close()
-}
-
-func (conn wrappedConn) Close() error {
-	return conn.wsc.Close()
-}
-
-func (c wrappedConn) LocalAddr() net.Addr  { return c.local }
-func (c wrappedConn) RemoteAddr() net.Addr { return c.remote }
-func (c wrappedConn) SetDeadline(t time.Time) error {
-	return nil // c.conn.SetDeadline(t)
-}
-func (c wrappedConn) SetReadDeadline(t time.Time) error {
-	return nil // c.conn.SetReadDeadline(t)
-}
-func (c wrappedConn) SetWriteDeadline(t time.Time) error {
-	return nil // c.conn.SetWriteDeadline(t)
 }
 
 func (n *node) handleConnection(ctx context.Context, origConn net.Conn, hws ...muxrpc.HandlerWrapper) {

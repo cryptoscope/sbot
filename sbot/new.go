@@ -5,7 +5,11 @@ package sbot
 import (
 	"io"
 	"net"
+	"net/http"
+	"strings"
 	"time"
+
+	"github.com/rs/cors"
 
 	kitlog "github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -388,6 +392,38 @@ func initSbot(s *Sbot) (*Sbot, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create network node")
 	}
+	blobsPathPrefix := "/blobs/get/"
+	h := cors.Default().Handler(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if !strings.HasPrefix(req.URL.Path, blobsPathPrefix) {
+			http.Error(w, "404", http.StatusNotFound)
+			return
+		}
+
+		rest := strings.TrimPrefix(req.URL.Path, blobsPathPrefix)
+		blobRef, err := refs.ParseBlobRef(rest)
+		if err != nil {
+			level.Error(log).Log("http-err", err.Error())
+			http.Error(w, "bad blob", http.StatusBadRequest)
+			return
+		}
+
+		br, err := s.BlobStore.Get(blobRef)
+		if err != nil {
+			s.WantManager.Want(blobRef)
+			level.Error(log).Log("http-err", err.Error())
+			http.Error(w, "no such blob", http.StatusNotFound)
+			return
+		}
+
+		// wh := w.Header()
+		// sniff content-type?
+		w.WriteHeader(http.StatusOK)
+		_, err = io.Copy(w, br)
+		if err != nil {
+			level.Error(log).Log("http-blob", err.Error())
+		}
+	}))
+	s.Network.HandleHTTP(h)
 
 	inviteService, err = legacyinvites.New(
 		kitlog.With(log, "plugin", "legacyInvites"),

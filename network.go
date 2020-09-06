@@ -6,6 +6,7 @@ import (
 	"context"
 	"io"
 	"net"
+	"net/http"
 	"time"
 
 	"go.cryptoscope.co/muxrpc"
@@ -29,6 +30,9 @@ type Network interface {
 	GetEndpointFor(*refs.FeedRef) (muxrpc.Endpoint, bool)
 
 	GetConnTracker() ConnTracker
+
+	// websock hack
+	HandleHTTP(handler http.Handler)
 
 	io.Closer
 }
