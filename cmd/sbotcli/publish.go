@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 	goon "github.com/shurcooL/go-goon"
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/ssb"
 	refs "go.mindeco.de/ssb-refs"
 	cli "gopkg.in/urfave/cli.v2"
 )
@@ -183,7 +182,7 @@ var publishAboutCmd = &cli.Command{
 			arg["name"] = n
 		}
 		if img := ctx.String("image"); img != "" {
-			blobRef, err := ssb.ParseBlobRef(img)
+			blobRef, err := refs.ParseBlobRef(img)
 			if err != nil {
 				return errors.Wrapf(err, "publish/about: invalid blob ref")
 			}

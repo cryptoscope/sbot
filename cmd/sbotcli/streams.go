@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/luigi"
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/ssb"
+	refs "go.mindeco.de/ssb-refs"
 	cli "gopkg.in/urfave/cli.v2"
 )
 
@@ -46,7 +46,7 @@ var typeStreamCmd = &cli.Command{
 			id = f
 		}
 
-		src, err := client.Source(longctx, mapMsg{}, muxrpc.Method{"partial"}, struct {
+		src, err := client.Source(longctx, mapMsg{}, muxrpc.Method{"partialReplication", "getMessagesOfType"}, struct {
 			ID   string `json:"id"`
 			Tipe string `json:"type"`
 		}{
@@ -77,7 +77,7 @@ var historyStreamCmd = &cli.Command{
 		var args = getStreamArgs(ctx)
 		args.ID = ir
 		if f := ctx.String("id"); f != "" {
-			flagRef, err := ssb.ParseFeedRef(f)
+			flagRef, err := refs.ParseFeedRef(f)
 			if err != nil {
 				return err
 			}

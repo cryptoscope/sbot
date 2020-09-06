@@ -9,6 +9,7 @@ import (
 	"go.cryptoscope.co/muxrpc"
 	"go.cryptoscope.co/ssb"
 	"go.cryptoscope.co/ssb/blobstore"
+	refs "go.mindeco.de/ssb-refs"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -87,7 +88,7 @@ var blobsWantCmd = &cli.Command{
 		if ref == "" {
 			return errors.New("blobs.want: need a blob ref")
 		}
-		br, err := ssb.ParseBlobRef(ref)
+		br, err := refs.ParseBlobRef(ref)
 		if err != nil {
 			return errors.Wrap(err, "blobs: failed to parse argument ref")
 		}
@@ -143,7 +144,7 @@ var blobsGetCmd = &cli.Command{
 		if ref == "" {
 			return errors.New("blobs.get: need a blob ref")
 		}
-		br, err := ssb.ParseBlobRef(ref)
+		br, err := refs.ParseBlobRef(ref)
 		if err != nil {
 			return errors.Wrap(err, "blobs: failed to parse argument ref")
 		}
