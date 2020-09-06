@@ -40,14 +40,16 @@ func (p plugin) Handler() muxrpc.Handler {
 func New(log logging.Interface,
 	fm *gossip.FeedManager,
 	feeds, bytype, roots *roaring.MultiLog,
-	rxlog margaret.Log) ssb.Plugin {
+	rxlog margaret.Log,
+	get ssb.Getter,
+) ssb.Plugin {
 	rootHdlr := muxmux.New(log)
 
-	// rootHdlr.RegisterAsync(muxrpc.Method{name, "getTangle"}, getTangle{
-	// 	log:     log,
-	// 	builder: b,
-	// 	self:    self,
-	// })
+	rootHdlr.RegisterAsync(muxrpc.Method{name, "getTangle"}, getTangleHandler{
+		roots: roots,
+		get:   get,
+		rxlog: rxlog,
+	})
 
 	rootHdlr.RegisterSource(muxrpc.Method{name, "getFeed"}, getFeedHandler{
 		fm: fm,
