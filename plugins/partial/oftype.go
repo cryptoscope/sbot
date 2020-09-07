@@ -2,6 +2,7 @@ package partial
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/librarian"
@@ -55,13 +56,18 @@ func (h getMessagesOfTypeHandler) HandleSource(ctx context.Context, req *muxrpc.
 
 	workSet, err := h.feeds.LoadInternalBitmap(feed.StoredAddr())
 	if err != nil {
-		return errors.Errorf("failed to load feed %s bitmap: %s", feed.ShortRef(), err.Error())
+		// TODO actual assert not found error.
+		// errors.Errorf("failed to load feed %s bitmap: %s", feed.ShortRef(), err.Error())
+		snk.Close()
+		return nil
 
 	}
 
 	tipeSeqs, err := h.bytype.LoadInternalBitmap(librarian.Addr(tipe))
 	if err != nil {
-		return errors.Errorf("failed to load tipe %s bitmap: %s", tipe, err.Error())
+		// return errors.Errorf("failed to load msg type %s bitmap: %s", tipe, err.Error())
+		snk.Close()
+		return nil
 
 	}
 
@@ -80,7 +86,7 @@ func (h getMessagesOfTypeHandler) HandleSource(ctx context.Context, req *muxrpc.
 
 		msg, ok := msgv.(refs.Message)
 		if !ok {
-			return errors.Errorf("invalid argument type %T", msgv)
+			return errors.Errorf("invalid msg type %T", msgv)
 		}
 		/*
 			kv.Key_ = msg.Key()
@@ -92,10 +98,9 @@ func (h getMessagesOfTypeHandler) HandleSource(ctx context.Context, req *muxrpc.
 		*/
 		err = snk.Pour(ctx, msg.ValueContentJSON())
 		if err != nil {
-			return errors.Errorf("failed to send json data: %w", err)
+			return fmt.Errorf("failed to send json data: %w", err)
 		}
 	}
-
 	snk.Close()
 	return nil
 }

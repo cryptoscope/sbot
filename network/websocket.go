@@ -2,7 +2,6 @@ package network
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -12,8 +11,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	"go.cryptoscope.co/muxrpc"
-	"go.cryptoscope.co/netwrap"
-	"go.cryptoscope.co/secretstream"
 )
 
 func websockHandler(n *node) http.HandlerFunc {
@@ -26,7 +23,6 @@ func websockHandler(n *node) http.HandlerFunc {
 		EnableCompression: false,
 	}
 	return func(w http.ResponseWriter, req *http.Request) {
-		fmt.Println("ssb-ws:", req.URL.String())
 		remoteAddr, err := net.ResolveTCPAddr("tcp", req.RemoteAddr)
 		if err != nil {
 			n.log.Log("warning", "failed wrap", "err", err, "remote", remoteAddr)
@@ -40,9 +36,7 @@ func websockHandler(n *node) http.HandlerFunc {
 
 		var wc net.Conn
 		wc = &wrappedConn{
-			remote: netwrap.WrapAddr(remoteAddr, secretstream.Addr{
-				PubKey: n.opts.KeyPair.Id.ID,
-			}),
+			remote: remoteAddr,
 			local: &net.TCPAddr{
 				IP:   nil,
 				Port: 8989,
@@ -53,6 +47,10 @@ func websockHandler(n *node) http.HandlerFunc {
 		level.Info(n.log).Log("event", "new ws conn", "r", remoteAddr)
 
 		// comment out this block to get `noauth` instead of `shs`
+		// TODO:
+		// netwrap.WrapAddr(remoteAddr, secretstream.Addr{
+		// 	PubKey: n.opts.KeyPair.Id.ID,
+		// })
 		cw := n.secretServer.ConnWrapper()
 		wc, err = cw(wc)
 		if err != nil {
