@@ -68,7 +68,7 @@ func Verify(raw []byte, hmacSecret *[32]byte) (*refs.MessageRef, *DeserializedMe
 			return nil, nil, err
 		}
 
-		if tlen := len(typedContent.Type); tlen < 3 || tlen > 53 {
+		if tlen := len(typedContent.Type); tlen < 3 || tlen > 52 {
 			return nil, nil, errors.Errorf("ssb Verify: scuttlebutt v1 requires a type field: %q", typedContent.Type)
 		}
 
