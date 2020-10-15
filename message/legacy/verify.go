@@ -56,6 +56,8 @@ func Verify(raw []byte, hmacSecret *[32]byte) (*refs.MessageRef, *DeserializedMe
 
 	if n := len(dmsg.Content); n < 1 {
 		return nil, nil, errors.Errorf("ssb Verify: has no content (%d)", n)
+	} else if n > 8000 { // not 100% right. need to count chars in latin1 actually
+		return nil, nil, errors.Errorf("ssb Verify: message too large (%d)", n)
 	}
 
 	switch dmsg.Content[0] {
