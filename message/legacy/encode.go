@@ -82,22 +82,11 @@ func formatArray(depth int, b *bytes.Buffer, dec *json.Decoder) error {
 }
 
 func formatObject(depth int, b *bytes.Buffer, dec *json.Decoder) error {
-	var (
-		isKey = true // key:value pair toggle
+	var isKey = true // key:value pair toggle
 
-		// stupid ssb legacy format detail..
-		foundType = false
-		validType = false
-
-		foundContent = false
-		validContent = false
-	)
 	for {
 		t, err := dec.Token()
 		if err == io.EOF {
-			if !validType {
-				return fmt.Errorf("ssb: no valid type")
-			}
 			return nil
 		}
 		if err != nil {
@@ -114,12 +103,6 @@ func formatObject(depth int, b *bytes.Buffer, dec *json.Decoder) error {
 					fmt.Fprint(b, ",")
 				}
 				fmt.Fprintf(b, "\n")
-				if depth == 2 && !validType {
-					return fmt.Errorf("ssb: no valid type")
-				}
-				if depth == 1 && !validContent {
-					return fmt.Errorf("ssb: no valid content")
-				}
 				return nil
 			case '{':
 				fmt.Fprint(b, "{")
@@ -135,15 +118,8 @@ func formatObject(depth int, b *bytes.Buffer, dec *json.Decoder) error {
 				if err := formatObject(d, b, dec); err != nil {
 					return errors.Wrapf(err, "formatObject(%d):decend failed", depth)
 				}
-				if depth == 1 && foundContent {
-					validContent = true // object content
-					foundContent = false
-				}
 				isKey = true
 			case '[':
-				if depth == 1 && foundContent {
-					return fmt.Errorf("ssb: no valid content")
-				}
 				fmt.Fprint(b, "[")
 				var d = depth + 1
 				if dec.More() {
@@ -164,26 +140,8 @@ func formatObject(depth int, b *bytes.Buffer, dec *json.Decoder) error {
 
 		case string:
 			if isKey {
-				if depth == 1 && v == "content" {
-					foundContent = true
-				}
-				if depth == 2 && v == "type" {
-					foundType = true
-				}
 				fmt.Fprintf(b, "%s%q: ", strings.Repeat("  ", depth), v)
 			} else {
-				if depth == 1 && foundContent {
-					validContent = true // encrypted message?
-					fmt.Println(v)
-					foundContent = false
-				}
-				if depth == 2 && foundType {
-					if lenV := len(v); lenV < 3 || lenV > 52 {
-						return fmt.Errorf("formatObject: invalid required type field: %q", v)
-					}
-					validType = true
-					foundType = false
-				}
 				r := strings.NewReplacer("\\", `\\`, "\t", `\t`, "\n", `\n`, "\r", `\r`, `"`, `\"`)
 				fmt.Fprintf(b, `"%s"`, unicodeEscapeSome(r.Replace(v)))
 				if dec.More() {
