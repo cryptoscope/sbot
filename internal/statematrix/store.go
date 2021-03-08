@@ -36,10 +36,6 @@ type StateMatrix struct {
 // map[peer refernce]frontier
 type currentFrontiers map[string]ssb.NetworkFrontier
 
-type CurrentSequencer interface {
-	CurrentSequence(*refs.FeedRef) (ssb.Note, error)
-}
-
 func New(base string, self *refs.FeedRef) (*StateMatrix, error) {
 
 	os.MkdirAll(base, 0700)
@@ -60,13 +56,12 @@ func New(base string, self *refs.FeedRef) (*StateMatrix, error) {
 	return &sm, nil
 }
 
-/*
-func (sm *StateMatrix) Open(peer *refs.FeedRef) (ssb.NetworkFrontier, error) {
+// Inspect returns the current frontier for the passed peer
+func (sm *StateMatrix) Inspect(peer *refs.FeedRef) (ssb.NetworkFrontier, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 	return sm.loadFrontier(peer)
 }
-*/
 
 func (sm *StateMatrix) StateFileName(peer *refs.FeedRef) (string, error) {
 	peerTfk, err := tfk.Encode(peer)
