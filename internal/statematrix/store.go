@@ -29,9 +29,6 @@ type StateMatrix struct {
 
 	self string // whoami
 
-	currSeq  CurrentSequencer
-	wantList ssb.ReplicationLister
-
 	mu   sync.Mutex
 	open currentFrontiers
 }
@@ -43,7 +40,7 @@ type CurrentSequencer interface {
 	CurrentSequence(*refs.FeedRef) (ssb.Note, error)
 }
 
-func New(base string, self *refs.FeedRef, wl ssb.ReplicationLister, cs CurrentSequencer) (*StateMatrix, error) {
+func New(base string, self *refs.FeedRef) (*StateMatrix, error) {
 
 	os.MkdirAll(base, 0700)
 
@@ -51,9 +48,6 @@ func New(base string, self *refs.FeedRef, wl ssb.ReplicationLister, cs CurrentSe
 		basePath: base,
 
 		self: self.Ref(),
-
-		wantList: wl,
-		currSeq:  cs,
 
 		open: make(currentFrontiers),
 	}
@@ -283,6 +277,8 @@ func (sm *StateMatrix) Changed(self, peer *refs.FeedRef) (ssb.NetworkFrontier, e
 	// no state yet
 	if len(selfNf) == 0 {
 		// use the replication lister and determin the stored feeds lenghts
+		return selfNf, nil
+		/* TODO: move zero-state code somewhere else
 		lister := sm.wantList.ReplicationList()
 		feeds, err := lister.List()
 		if err != nil {
@@ -312,6 +308,7 @@ func (sm *StateMatrix) Changed(self, peer *refs.FeedRef) (ssb.NetworkFrontier, e
 		if err != nil {
 			return nil, err
 		}
+		*/
 	}
 
 	peerNf, err := sm.loadFrontier(peer)
